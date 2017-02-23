@@ -178,9 +178,9 @@ def preprocess_commands(ctx):
                 [ 'export', ' sslenabled=`echo $VCAP_SERVICES | sed -e \'s/.*ssl-enabled.:.//g;s/\".*.*//g\'`'],
                 [ 'if [ $sslenabled == \"true\" ] ; then export sslflag=-s ; fi; '],
                 [ 'echo sslflag set to $sslflag' ],
-                [ 'PATH=$PATH:./app/php/bin/ ./app/appdynamics/appdynamics-php-agent/install.sh $sslflag -i ./app/appdynamics/phpini -a=$AD_ACCOUNT_NAME@$AD_ACCOUNT_ACCESS_KEY $AD_CONTROLLER $AD_PORT $APP_NAME $APP_TIERNAME $APP_HOSTNAME' ],
-                [ 'cat', ' /home/vcap/app/appdynamics/phpini/appdynamics_agent.ini >> /home/vcap/app/php/etc/php.ini'],
-                [ 'cat', ' /home/vcap/app/appdynamics/phpini/appdynamics_agent.ini'],
+                [ 'PATH=$PATH:./app/php/bin/ /home/vcap/app/appdynamics/appdynamics-php-agent/install.sh $sslflag -i /tmp/appdynamics_agent.ini -a=$AD_ACCOUNT_NAME@$AD_ACCOUNT_ACCESS_KEY $AD_CONTROLLER $AD_PORT $APP_NAME $APP_TIERNAME $APP_HOSTNAME' ],
+                [ 'cat', ' /tmp/appdynamics_agent.ini >> /home/vcap/app/php/etc/php.ini'],
+                [ 'cat', ' /tmp/appdynamics_agent.ini'],
                 [ 'echo', '"done preprocess"'],
                 ['env']]
     else:
