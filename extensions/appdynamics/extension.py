@@ -23,7 +23,7 @@ _log = logging.getLogger('appdynamics')
 
 DEFAULTS = {
 'APPDYNAMICS_HOST': 'packages.appdynamics.com',
-'APPDYNAMICS_VERSION': '4.1.5.0',
+'APPDYNAMICS_VERSION': '4.2.14.0',
 'APPDYNAMICS_PACKAGE': 'appdynamics-php-agent-x64-linux-{APPDYNAMICS_VERSION}.tar.bz2',
 'APPDYNAMICS_DOWNLOAD_URL': 'https://{APPDYNAMICS_HOST}/'
                          'php/{APPDYNAMICS_VERSION}/{APPDYNAMICS_PACKAGE}',
