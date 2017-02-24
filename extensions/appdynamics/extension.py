@@ -162,31 +162,31 @@ def preprocess_commands(ctx):
         _log.debug("AppDynamics service detected.")
         detected = True
 
-    if detected == True: 
-    	exit_code = os.system("echo preprocess_commands: AppDynamics agent configuration")
-      os.system("echo in preprocess")
-      os.system("env")
-      os.system("chmod -R 755 /home/vcap/app")
-      os.system("export APP_TIERNAME=`echo $VCAP_APPLICATION | sed -e \'s/.*application_name.:.//g;s/\".*application_uri.*//g\' `")
-      os.system("if [ -z $application_name ]; then export APP_NAME=$APP_TIERNAME && APP_TIERNAME=$APP_TIERNAME; else export APP_NAME=$application_name; fi")
-      os.system("export APP_HOSTNAME=$APP_TIERNAME:`echo $VCAP_APPLICATION | sed -e \'s/.*instance_index.://g;s/\".*host.*//g\' | sed \'s/,//\' `")
-      os.system("export AD_ACCOUNT_NAME=`echo $VCAP_SERVICES | sed -e \'s/.*account-name.:.//g;s/\".*port.*//g\' `")
-      os.system("export AD_ACCOUNT_ACCESS_KEY=`echo $VCAP_SERVICES | sed -e \'s/.*account-access-key.:.//g;s/\".*host-name.*//g\' `")
-      os.system("export AD_CONTROLLER=`echo $VCAP_SERVICES | sed -e \'s/.*host-name.:.//g;s/\".*ssl-enabled.*//g\' `")
-      os.system("export AD_PORT=`echo $VCAP_SERVICES | sed -e \'s/.*port.:.//g;s/\".*account-access-key.*//g\' `")
-      os.system("export sslenabled=`echo $VCAP_SERVICES | sed -e \'s/.*ssl-enabled.:.//g;s/\".*.*//g\'`")
-      os.system("if [ $sslenabled == \"true\" ] ; then export sslflag=-s ; fi;")
-      os.system("echo sslflag set to $sslflag")
-      os.system("export PATH=$PATH:/home/vcap/app/php/bin")
-      os.system("/home/vcap/app/appdynamics/appdynamics-php-agent/install.sh $sslflag -i /tmp/appdynamics_agent.ini -a=$AD_ACCOUNT_NAME@$AD_ACCOUNT_ACCESS_KEY $AD_CONTROLLER $AD_PORT $APP_NAME $APP_TIERNAME $APP_HOSTNAME")
-      os.system("cat /tmp/appdynamics_agent.ini")
-      os.system("cat /tmp/appdynamics_agent.ini >> /home/vcap/app/php/etc/php.ini")
-      os.system("export HOME=/home/vcap/app")
-      os.system("export HTTPD_SERVER_ADMIN=vcap")
-      os.system("/home/vcap/app/httpd/bin -k restart")
-      return true
+    if detected == True:
+       exit_code = os.system("echo preprocess_commands: AppDynamics agent configuration")
+       os.system("echo in preprocess")
+       os.system("env")
+       os.system("chmod -R 755 /home/vcap/app")
+       os.system("export APP_TIERNAME=`echo $VCAP_APPLICATION | sed -e \'s/.*application_name.:.//g;s/\".*application_uri.*//g\' `")
+       os.system("if [ -z $application_name ]; then export APP_NAME=$APP_TIERNAME && APP_TIERNAME=$APP_TIERNAME; else export APP_NAME=$application_name; fi")
+       os.system("export APP_HOSTNAME=$APP_TIERNAME:`echo $VCAP_APPLICATION | sed -e \'s/.*instance_index.://g;s/\".*host.*//g\' | sed \'s/,//\' `")
+       os.system("export AD_ACCOUNT_NAME=`echo $VCAP_SERVICES | sed -e \'s/.*account-name.:.//g;s/\".*port.*//g\' `")
+       os.system("export AD_ACCOUNT_ACCESS_KEY=`echo $VCAP_SERVICES | sed -e \'s/.*account-access-key.:.//g;s/\".*host-name.*//g\' `")
+       os.system("export AD_CONTROLLER=`echo $VCAP_SERVICES | sed -e \'s/.*host-name.:.//g;s/\".*ssl-enabled.*//g\' `")
+       os.system("export AD_PORT=`echo $VCAP_SERVICES | sed -e \'s/.*port.:.//g;s/\".*account-access-key.*//g\' `")
+       os.system("export sslenabled=`echo $VCAP_SERVICES | sed -e \'s/.*ssl-enabled.:.//g;s/\".*.*//g\'`")
+       os.system("if [ $sslenabled == \"true\" ] ; then export sslflag=-s ; fi;")
+       os.system("echo sslflag set to $sslflag")
+       os.system("export PATH=$PATH:/home/vcap/app/php/bin")
+       os.system("/home/vcap/app/appdynamics/appdynamics-php-agent/install.sh $sslflag -i /tmp/appdynamics_agent.ini -a=$AD_ACCOUNT_NAME@$AD_ACCOUNT_ACCESS_KEY $AD_CONTROLLER $AD_PORT $APP_NAME $APP_TIERNAME $APP_HOSTNAME")
+       os.system("cat /tmp/appdynamics_agent.ini")
+       os.system("cat /tmp/appdynamics_agent.ini >> /home/vcap/app/php/etc/php.ini")
+       os.system("export HOME=/home/vcap/app")
+       os.system("export HTTPD_SERVER_ADMIN=vcap")
+       os.system("/home/vcap/app/httpd/bin -k restart")
+       return True
     else:
-        return ()
+       return ()
 
 def service_commands(ctx):
     return {}
