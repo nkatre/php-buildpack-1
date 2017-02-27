@@ -18,8 +18,9 @@ Downloads, installs and configures the AppDynamics agent for PHP
 import os
 import os.path
 import logging
-
-_log = logging.getLogger('appdynamics')
+from lib.extension_helpers import PHPExtensionHelper
+from lib.build_pack_utils.compile_extensions import CompileExtensions
+from subprocess import call
 
 DEFAULTS = {
 'APPDYNAMICS_HOST': 'packages.appdynamics.com',
@@ -29,28 +30,26 @@ DEFAULTS = {
                          'php/{APPDYNAMICS_VERSION}/{APPDYNAMICS_PACKAGE}',
 }
 
-class AppDynamicsInstaller(object):
+class AppDynamicsInstaller(PHPExtensionHelper):
     def __init__(self, ctx):
-        self._log = _log
-        self._ctx = ctx
+        self._log = logging.getLogger('appdynamics')
         self._detected = False
         self.app_name = None
         self.account_access_key = None
+        manifest_file = os.path.join(self._ctx['BP_DIR'], 'manifest.yml')
         try:
             self._log.info("Initializing")
             if ctx['PHP_VM'] == 'php':
+                self._set_default_version(manifest_file)
                 self._merge_defaults()
                 self._load_service_info()
+                self._preprocess_commands(ctx)
                 self._load_php_info()
                 self._load_appdynamics_info()
         except Exception:
             self._log.exception("Error installing AppDynamics! "
                                 "AppDynamics will not be available.")
 
-    def _merge_defaults(self):
-        for key, val in DEFAULTS.iteritems():
-            if key not in self._ctx:
-                self._ctx[key] = val
 
     def _load_service_info(self):
         self._log.info("Loading AppDynamics service info.")
@@ -76,6 +75,17 @@ class AppDynamicsInstaller(object):
             if self.account_access_key:
                 self._log.debug("AppDynamics service detected.")
                 self._detected = True
+
+    def _set_default_version(self, manifest_file):
+        compile_exts = CompileExtensions(self._ctx['BP_DIR'])
+
+        exit_code, output = compile_exts.default_version_for(manifest_file, "appdynamics")
+        if exit_code == 1:
+            self._log.error("Error detecting AppDynamics default version: %s", output)
+            raise RuntimeError("Error detecting AppDynamics default version")
+
+        self._log.info("Using AppDynamics default version: %s", output)
+        self._ctx['APPDYNAMICS_VERSION'] = output
 
     def _load_appdynamics_info(self):
         vcap_app = self._ctx.get('VCAP_APPLICATION', {})
@@ -163,27 +173,28 @@ def preprocess_commands(ctx):
         detected = True
 
     if detected == True:
-       exit_code = os.system("echo preprocess_commands: AppDynamics agent configuration")
-       os.system("echo in preprocess")
-       os.system("env")
-       os.system("chmod -R 755 /home/vcap/app")
-       os.system("export APP_TIERNAME=`echo $VCAP_APPLICATION | sed -e \'s/.*application_name.:.//g;s/\".*application_uri.*//g\' `")
-       os.system("if [ -z $application_name ]; then export APP_NAME=$APP_TIERNAME && APP_TIERNAME=$APP_TIERNAME; else export APP_NAME=$application_name; fi")
-       os.system("export APP_HOSTNAME=$APP_TIERNAME:`echo $VCAP_APPLICATION | sed -e \'s/.*instance_index.://g;s/\".*host.*//g\' | sed \'s/,//\' `")
-       os.system("export AD_ACCOUNT_NAME=`echo $VCAP_SERVICES | sed -e \'s/.*account-name.:.//g;s/\".*port.*//g\' `")
-       os.system("export AD_ACCOUNT_ACCESS_KEY=`echo $VCAP_SERVICES | sed -e \'s/.*account-access-key.:.//g;s/\".*host-name.*//g\' `")
-       os.system("export AD_CONTROLLER=`echo $VCAP_SERVICES | sed -e \'s/.*host-name.:.//g;s/\".*ssl-enabled.*//g\' `")
-       os.system("export AD_PORT=`echo $VCAP_SERVICES | sed -e \'s/.*port.:.//g;s/\".*account-access-key.*//g\' `")
-       os.system("export sslenabled=`echo $VCAP_SERVICES | sed -e \'s/.*ssl-enabled.:.//g;s/\".*.*//g\'`")
-       os.system("if [ $sslenabled == \"true\" ] ; then export sslflag=-s ; fi;")
-       os.system("echo sslflag set to $sslflag")
-       os.system("export PATH=$PATH:/home/vcap/app/php/bin")
-       os.system("/home/vcap/app/appdynamics/appdynamics-php-agent/install.sh $sslflag -i /tmp/appdynamics_agent.ini -a=$AD_ACCOUNT_NAME@$AD_ACCOUNT_ACCESS_KEY $AD_CONTROLLER $AD_PORT $APP_NAME $APP_TIERNAME $APP_HOSTNAME")
-       os.system("cat /tmp/appdynamics_agent.ini")
-       os.system("cat /tmp/appdynamics_agent.ini >> /home/vcap/app/php/etc/php.ini")
-       os.system("export HOME=/home/vcap/app")
-       os.system("export HTTPD_SERVER_ADMIN=vcap")
-       os.system("/home/vcap/app/httpd/bin -k restart")
+       exit_code = call("echo preprocess_commands: AppDynamics agent configuration")
+       call("echo In preprocess method")
+       call("echo in preprocess")
+       call("env")
+       call("chmod -R 755 /home/vcap/app")
+       call("export APP_TIERNAME=`echo $VCAP_APPLICATION | sed -e \'s/.*application_name.:.//g;s/\".*application_uri.*//g\' `")
+       call("if [ -z $application_name ]; then export APP_NAME=$APP_TIERNAME && APP_TIERNAME=$APP_TIERNAME; else export APP_NAME=$application_name; fi")
+       call("export APP_HOSTNAME=$APP_TIERNAME:`echo $VCAP_APPLICATION | sed -e \'s/.*instance_index.://g;s/\".*host.*//g\' | sed \'s/,//\' `")
+       call("export AD_ACCOUNT_NAME=`echo $VCAP_SERVICES | sed -e \'s/.*account-name.:.//g;s/\".*port.*//g\' `")
+       call("export AD_ACCOUNT_ACCESS_KEY=`echo $VCAP_SERVICES | sed -e \'s/.*account-access-key.:.//g;s/\".*host-name.*//g\' `")
+       call("export AD_CONTROLLER=`echo $VCAP_SERVICES | sed -e \'s/.*host-name.:.//g;s/\".*ssl-enabled.*//g\' `")
+       call("export AD_PORT=`echo $VCAP_SERVICES | sed -e \'s/.*port.:.//g;s/\".*account-access-key.*//g\' `")
+       call("export sslenabled=`echo $VCAP_SERVICES | sed -e \'s/.*ssl-enabled.:.//g;s/\".*.*//g\'`")
+       call("if [ $sslenabled == \"true\" ] ; then export sslflag=-s ; fi;")
+       call("echo sslflag set to $sslflag")
+       call("export PATH=$PATH:/home/vcap/app/php/bin")
+       call("/home/vcap/app/appdynamics/appdynamics-php-agent/install.sh $sslflag -i /tmp/appdynamics_agent.ini -a=$AD_ACCOUNT_NAME@$AD_ACCOUNT_ACCESS_KEY $AD_CONTROLLER $AD_PORT $APP_NAME $APP_TIERNAME $APP_HOSTNAME")
+       call("cat /tmp/appdynamics_agent.ini")
+       call("cat /tmp/appdynamics_agent.ini >> /home/vcap/app/php/etc/php.ini")
+       call("export HOME=/home/vcap/app")
+       call("export HTTPD_SERVER_ADMIN=vcap")
+       call("/home/vcap/app/httpd/bin -k restart")
        return True
     else:
        return ()
@@ -202,3 +213,7 @@ def compile(install):
         install.package('APPDYNAMICS')
         _log.info("AppDynamics Installed.")
     return 0
+
+import lib.compile_helpers
+class AppDynamicsExtension(PHPExtensionHelper):
+    def __init__(self, ctx):
