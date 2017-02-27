@@ -39,7 +39,6 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         try:
             self._log.info("Initializing")
             if ctx['PHP_VM'] == 'php':
-                self._set_default_version(manifest_file)
                 self._merge_defaults()
                 self._load_service_info()
                 self._preprocess_commands(ctx)
@@ -74,18 +73,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
             if self.account_access_key:
                 self._log.debug("AppDynamics service detected.")
                 self._detected = True
-
-    def _set_default_version(self, manifest_file):
-        compile_exts = CompileExtensions(self._ctx['BP_DIR'])
-
-        exit_code, output = compile_exts.default_version_for(manifest_file, "appdynamics")
-        if exit_code == 1:
-            self._log.error("Error detecting AppDynamics default version: %s", output)
-            raise RuntimeError("Error detecting AppDynamics default version")
-
-        self._log.info("Using AppDynamics default version: %s", output)
-        self._ctx['APPDYNAMICS_VERSION'] = output
-
+                
     def _load_appdynamics_info(self):
         vcap_app = self._ctx.get('VCAP_APPLICATION', {})
         self.app_name = vcap_app.get('name', None)
