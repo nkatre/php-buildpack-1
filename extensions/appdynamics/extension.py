@@ -214,6 +214,3 @@ def compile(install):
         _log.info("AppDynamics Installed.")
     return 0
 
-import lib.compile_helpers
-class AppDynamicsExtension(PHPExtensionHelper):
-    def __init__(self, ctx):
