@@ -19,7 +19,7 @@ import os
 import os.path
 import logging
 from extension_helpers import PHPExtensionHelper
-from compile_extensions import CompileExtensions
+from build_pack_utils.compile_extensions import CompileExtensions
 from subprocess import call
 
 DEFAULTS = {
