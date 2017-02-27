@@ -36,7 +36,6 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         self._detected = False
         self.app_name = None
         self.account_access_key = None
-        manifest_file = os.path.join(self._ctx['BP_DIR'], 'manifest.yml')
         try:
             self._log.info("Initializing")
             if ctx['PHP_VM'] == 'php':
