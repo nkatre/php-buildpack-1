@@ -18,8 +18,7 @@ Downloads, installs and configures the AppDynamics agent for PHP
 import os
 import os.path
 import logging
-from lib.extension_helpers import PHPExtensionHelper
-from lib.build_pack_utils.compile_extensions import CompileExtensions
+from extension_helpers import PHPExtensionHelper
 from subprocess import call
 
 DEFAULTS = {
