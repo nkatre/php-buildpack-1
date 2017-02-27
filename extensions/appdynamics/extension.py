@@ -195,7 +195,7 @@ def service_environment(ctx):
 
 def compile(install):
     appdynamics = AppDynamicsInstaller(install.builder._ctx)
-    call("echo _ctx")
+    call("_ctx")
     if appdynamics.should_install():
         _log.info("Installing AppDynamics")
         install.package('APPDYNAMICS')
