@@ -18,187 +18,125 @@ Downloads, installs and configures the AppDynamics agent for PHP
 import os
 import os.path
 import logging
-from extension_helpers import PHPExtensionHelper
-from build_pack_utils.compile_extensions import CompileExtensions
+from lib.extension_helpers import PHPExtensionHelper
 from subprocess import call
+import re
 
-DEFAULTS = {
-'APPDYNAMICS_HOST': 'packages.appdynamics.com',
-'APPDYNAMICS_VERSION': '4.2.14.0',
-'APPDYNAMICS_PACKAGE': 'appdynamics-php-agent-x64-linux-{APPDYNAMICS_VERSION}.tar.bz2',
-'APPDYNAMICS_DOWNLOAD_URL': 'https://{APPDYNAMICS_HOST}/'
-                         'php/{APPDYNAMICS_VERSION}/{APPDYNAMICS_PACKAGE}',
-}
+
 
 class AppDynamicsInstaller(PHPExtensionHelper):
+
     def __init__(self, ctx):
+        PHPExtensionHelper.__init__(self, ctx)
         self._log = logging.getLogger('appdynamics')
-        self._detected = False
-        self.app_name = None
-        self.account_access_key = None
+        self._FILTER = "app[-]?dynamics"                 # make static final
+        self._appdynamics_credentials = None # JSON which mentions all appdynamics credentials
+        self._account_access_key = None      # AppDynamics Controller Account Access Key
+        self._account_name = None            # AppDynamics Controller Account Name
+        self._host_name = None               # AppDynamics Controller Host Address
+        self._port = None                    # AppDynamics Controller Port
+        self._ssl_enabled = None             # AppDynamics Controller SSL Enabled
+        # Specify the Application details
+        self._app_name = None                # AppDynamics App name
+        self._tier_name = None               # AppDynamics Tier name
+        self._node_name = None               # AppDynamics Node name
         try:
             self._log.info("Initializing")
             if ctx['PHP_VM'] == 'php':
-                self._merge_defaults()
-                self._load_service_info()
-                self._preprocess_commands(ctx)
-                self._load_php_info()
-                self._load_appdynamics_info()
+                self._log.info("method: constructor")
         except Exception:
             self._log.exception("Error installing AppDynamics! "
                                 "AppDynamics will not be available.")
 
 
-    def _load_service_info(self):
-        self._log.info("Loading AppDynamics service info.")
-        services = self._ctx.get('VCAP_SERVICES', {})
-        service_defs = services.get('appdynamics', [])
-        if len(service_defs) == 0:
-            self._log.info("AppDynamics services with tag appdynamics not detected.")
-            self._log.info("Looking for tag app-dynamics service.")
-            service_defs = services.get('app-dynamics', [])
-            if len(service_defs) == 0:
-               self._log.info("AppDynamics services with tag app-dynamics not detected.")
-               self._log.info("Looking for Appdynamics user-provided service.")
-               service_defs = services.get('user-provided', [])
-               if len(service_defs) == 0:
-                   self._log.info("AppDynamics services not detected.")
-        if len(service_defs) > 1:
-            self._log.warn("Multiple AppDynamics services found, "
-                           "credentials from first one.")
-        if len(service_defs) > 0:
-            service = service_defs[0]
-            creds = service.get('credentials', {})
-            self.account_access_key = creds.get('account-access-key', None)
-            if self.account_access_key:
-                self._log.debug("AppDynamics service detected.")
-                self._detected = True
-                
-    def _load_appdynamics_info(self):
-        vcap_app = self._ctx.get('VCAP_APPLICATION', {})
-        self.app_name = vcap_app.get('name', None)
-        self._log.debug("App Name [%s]", self.app_name)
+    #0
+    def _defaults(self):
+        """Returns a set of default environment variables.
 
-        if 'APPDYNAMICS_LICENSE' in self._ctx.keys():
-            if self._detected:
-                self._log.warn("Detected a AppDynamics Service & Manual Key,"
-                               " using the manual key.")
-            self.license_key = self._ctx['APPDYNAMICS_LICENSE']
-            self._detected = True
+        Create and return a list of default environment variables.  These
+        are merged with the build pack context when this the extension
+        object is created.
 
-        if self._detected:
-            appdynamics_so_name = 'appdynamics-%s%s.so' % (
-                self._php_api, (self._php_zts and 'zts' or ''))
-            self.appdynamics_so = os.path.join('@{HOME}', 'appdynamics',
-                                            'agent', self._php_arch,
-                                            appdynamics_so_name)
-            self._log.debug("PHP Extension [%s]", self.appdynamics_so)
-            self.log_path = os.path.join('@{HOME}', 'logs',
-                                         'appdynamics-daemon.log')
-            self._log.debug("Log Path [%s]", self.log_path)
-            self.daemon_path = os.path.join(
-                '@{HOME}', 'appdynamics', 'daemon',
-                'appdynamics-daemon.%s' % self._php_arch)
-            self._log.debug("Daemon [%s]", self.daemon_path)
-            self.socket_path = os.path.join('@{HOME}', 'appdynamics',
-                                            'daemon.sock')
-            self._log.debug("Socket [%s]", self.socket_path)
-            self.pid_path = os.path.join('@{HOME}', 'appdynamics',
-                                         'daemon.pid')
-            self._log.debug("Pid File [%s]", self.pid_path)
-
-    def _load_php_info(self):
-        self.php_ini_path = os.path.join(self._ctx['BUILD_DIR'],
-                                         'php', 'etc', 'php.ini')
-        self._php_extn_dir = self._find_php_extn_dir()
-        self._php_api, self._php_zts = self._parse_php_api()
-        self._php_arch = self._ctx.get('APPDYNAMICS_ARCH', 'x64')
-        self._log.debug("PHP API [%s] Arch [%s]",
-                        self._php_api, self._php_arch)
-
-    def _find_php_extn_dir(self):
-        with open(self.php_ini_path, 'rt') as php_ini:
-            for line in php_ini.readlines():
-                if line.startswith('extension_dir'):
-                    (key, val) = line.strip().split(' = ')
-                    return val.strip('"')
-
-    def _parse_php_api(self):
-        tmp = os.path.basename(self._php_extn_dir)
-        php_api = tmp.split('-')[-1]
-        php_zts = (tmp.find('non-zts') == -1)
-        return php_api, php_zts
-
-    def should_install(self):
-        return self._detected
-
-# Extension Methods
-def preprocess_commands(ctx):
-
-    service = ctx.get('VCAP_SERVICES', {})
-    service_defs = service.get('appdynamics', [])
-    detected = False
-    if len(service_defs) == 0:
-       _log.info("AppDynamics services with tag appdynamics not detected.")
-       _log.info("Looking for tag app-dynamics service.")
-       service_defs = service.get('app-dynamics', [])
-       if len(service_defs) == 0:
-          _log.info("AppDynamics services with tag app-dynamics not detected.")
-          _log.info("Looking for Appdynamics user-provided service.")
-          cups_service_defs = service.get('user-provided', [])
-
-          if len(cups_service_defs) == 0:
-             _log.info("AppDynamics services not detected.")
-          else:
-             cups_svc = cups_service_defs.get('name', [])
-             if (cups_svc == "appdynamics") or (cups_svc == "app-dynamics"):
-                _log.info("AppDynamics cups services detected.")
-                detected = True
-
-    if len(service_defs) > 0:
-        _log.debug("AppDynamics service detected.")
-        detected = True
-
-    if detected == True:
-       exit_code = call("echo preprocess_commands: AppDynamics agent configuration")
-       call("echo In preprocess method")
-       call("echo in preprocess")
-       call("env")
-       call("chmod -R 755 /home/vcap/app")
-       call("export APP_TIERNAME=`echo $VCAP_APPLICATION | sed -e \'s/.*application_name.:.//g;s/\".*application_uri.*//g\' `")
-       call("if [ -z $application_name ]; then export APP_NAME=$APP_TIERNAME && APP_TIERNAME=$APP_TIERNAME; else export APP_NAME=$application_name; fi")
-       call("export APP_HOSTNAME=$APP_TIERNAME:`echo $VCAP_APPLICATION | sed -e \'s/.*instance_index.://g;s/\".*host.*//g\' | sed \'s/,//\' `")
-       call("export AD_ACCOUNT_NAME=`echo $VCAP_SERVICES | sed -e \'s/.*account-name.:.//g;s/\".*port.*//g\' `")
-       call("export AD_ACCOUNT_ACCESS_KEY=`echo $VCAP_SERVICES | sed -e \'s/.*account-access-key.:.//g;s/\".*host-name.*//g\' `")
-       call("export AD_CONTROLLER=`echo $VCAP_SERVICES | sed -e \'s/.*host-name.:.//g;s/\".*ssl-enabled.*//g\' `")
-       call("export AD_PORT=`echo $VCAP_SERVICES | sed -e \'s/.*port.:.//g;s/\".*account-access-key.*//g\' `")
-       call("export sslenabled=`echo $VCAP_SERVICES | sed -e \'s/.*ssl-enabled.:.//g;s/\".*.*//g\'`")
-       call("if [ $sslenabled == \"true\" ] ; then export sslflag=-s ; fi;")
-       call("echo sslflag set to $sslflag")
-       call("export PATH=$PATH:/home/vcap/app/php/bin")
-       call("/home/vcap/app/appdynamics/appdynamics-php-agent/install.sh $sslflag -i /tmp/appdynamics_agent.ini -a=$AD_ACCOUNT_NAME@$AD_ACCOUNT_ACCESS_KEY $AD_CONTROLLER $AD_PORT $APP_NAME $APP_TIERNAME $APP_HOSTNAME")
-       call("cat /tmp/appdynamics_agent.ini")
-       call("cat /tmp/appdynamics_agent.ini >> /home/vcap/app/php/etc/php.ini")
-       call("export HOME=/home/vcap/app")
-       call("export HTTPD_SERVER_ADMIN=vcap")
-       call("/home/vcap/app/httpd/bin -k restart")
-       return True
-    else:
-       return ()
-
-def service_commands(ctx):
-    return {}
+        Return a dictionary.
+        """
+        return {
+                'APPDYNAMICS_HOST': 'packages.appdynamics.com',
+                'APPDYNAMICS_VERSION': '4.2.14.0',
+                'APPDYNAMICS_PACKAGE': 'appdynamics-php-agent-x64-linux-{APPDYNAMICS_VERSION}.tar.bz2',
+                'APPDYNAMICS_DOWNLOAD_URL': 'https://{APPDYNAMICS_HOST}/php/{APPDYNAMICS_VERSION}/{APPDYNAMICS_PACKAGE}'
+        }
 
 
-def service_environment(ctx):
-    return {}
+    #1
+    # (Done)
+    def _should_compile(self):
+        """Determines if the extension should install it's payload.
 
-def compile(install):
-    appdynamics = AppDynamicsInstaller(install.builder._ctx)
-    call("_ctx")
-    if appdynamics.should_install():
-        _log.info("Installing AppDynamics")
-        install.package('APPDYNAMICS')
-        _log.info("AppDynamics Installed.")
-    return 0
+        This check is called during the `compile` method of the extension.
+        It should return true if the payload of this extension should
+        be installed (i.e. the `install` method is called).
+        """
+        self._log.info("method: _should_compile")
+        VCAP_SERVICES_STRING = str(self._services)
+        if bool(re.search(self.FILTER, VCAP_SERVICES_STRING)):
+            self._log.info("AppDynamics service detected")
+            return True
+        return False
 
+    # WIP
+    def _configure(self):
+        """Configure the extension.
+
+        Called when `should_configure` returns true.  Implement this
+        method for your extension.
+        """
+        self._log("method: _configure")
+        pass
+
+
+
+    # WIP
+    def _compile(self, install):
+        """Install the payload of this extension.
+
+        Called when `_should_compile` returns true.  This is responsible
+        for installing the payload of the extension.
+
+        The argument is the installer object that is passed into the
+        `compile` method.
+        """
+        self._log("method: _compile")
+        self._log.info("Installing AppDynamics")
+        install.package('AppDynamics')
+        self._log("Downloaded AppDynamics package")
+
+
+    #3
+    def _service_environment(self):
+        """Return dict of environment variables x[var]=val"""
+        self._log("method: _service_environment")
+        return {}
+
+
+    #4 (Done)
+    def _service_commands(self):
+        """Return dict of commands to run x[name]=cmd"""
+        self._log("method: _service_commands")
+        return {
+            'httpd': (
+            '$HOME/httpd/bin/apachectl',
+            '-f "$HOME/httpd/conf/httpd.conf"',
+            '-k restart',
+            '-DFOREGROUND')
+            #'appdynamics_proxy': (
+            #    '$HOME/appdynamics-php-agent/proxy/runProxy',
+            #    '-d "$HOME/appdynamics-php-agent/proxy"',
+            #    ''
+            #)
+        }
+
+    #5
+    def _preprocess_commands(self):
+        """Return your list of preprocessing commands"""
+        self._log("method: _preprocess_commands")
+        return ()
