@@ -99,7 +99,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         print("Loading AppDynamics service info.")
         services = self._ctx.get('VCAP_SERVICES', {})
         service_defs = services.get("appdynamics")
-        if len(service_defs) == 0:
+        if service_defs is None:
             print("AppDynamics service not present in VCAP_SERVICES")
             # Search in ups
             print("Searching for appdynamics service in user-provided services")
