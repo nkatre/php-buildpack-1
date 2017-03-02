@@ -25,10 +25,9 @@ import re
 
 
 class AppDynamicsInstaller(PHPExtensionHelper):
-
+    _log = logging.getLogger('appdynamics')
     def __init__(self, ctx):
         PHPExtensionHelper.__init__(self, ctx)
-        self._log = logging.getLogger('appdynamics')
         self._FILTER = "app[-]?dynamics"                 # make static final
         self._appdynamics_credentials = None # JSON which mentions all appdynamics credentials
         self._account_access_key = None      # AppDynamics Controller Account Access Key
