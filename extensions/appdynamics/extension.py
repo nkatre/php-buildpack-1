@@ -192,7 +192,8 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         """Return dict of environment variables x[var]=val"""
         print("method: _service_environment")
         env = {
-            'PHP_VERSION':"$(/home/vcap/app/php/bin/php-config --version | cut -d '.' -f 1,2)",
+            'PHP_VERSION': "$(/home/vcap/app/php/bin/php-config --version | cut -d '.' -f 1,2)",
+            'PHP_EXT_DIR': "$(/home/vcap/app/php/bin/php-config --extension-dir | sed 's|/tmp/staged|/home/vcap|')",
             'APPD_CONF_CONTROLLER_HOST': self._host_name,
             'APPD_CONF_CONTROLLER_PORT': self._port,
             'APPD_CONF_ACCOUNT_NAME': self._account_name,
@@ -213,17 +214,17 @@ class AppDynamicsInstaller(PHPExtensionHelper):
             'appdynamics': (
             '/home/vcap/app/appdynamics/appdynamics-php-agent/install.sh '
             '$sslflag '
-            '-a "$APPDYNAMICS_ACCOUNT@$APPDYNAMICS_ACCESS_KEY"'
+            '-a "$APPD_CONF_ACCOUNT_NAME@$APPD_CONF_ACCESS_KEY" '
             '-e "$PHP_EXT_DIR" '
-            '-p "/home/vcap/app/php/bin"'
+            '-p "/home/vcap/app/php/bin" '
             '-i ./app/appdynamics/phpini '
-            '-v "$PHP_VERSION"'
-            '--ignore-permissions'
-            '"$APPDYNAMICS_HOST"'
-            '"$APPDYNAMICS_PORT"'
-            '"$APP_NAME"'
-            '"$APPDYNAMICS_TIER"'
-            '"node-$CF_INSTANCE_INDEX"'
+            '-v "$PHP_VERSION" '
+            '--ignore-permissions '
+            '"$APPD_CONF_CONTROLLER_HOST" '
+            '"$APPD_CONF_CONTROLLER_PORT" '
+            '"$APPD_CONF_APP" '
+            '"$APPD_CONF_TIER" '
+            '"$APPD_CONF_NODE-$CF_INSTANCE_INDEX" '
             ),
             'httpd': (
             '$HOME/httpd/bin/apachectl',
@@ -238,7 +239,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         print("method: _preprocess_commands")
         commands = [
             [ 'echo', '" in preprocess;"'],
-            [ 'echo', 'env'],
+            [ 'env'],
             ["export", "PHP_VERSION=$(/home/vcap/app/php/bin/php-config --version | cut -d '.' -f 1,2)"],
             ["export", "PHP_EXT_DIR=$(/home/vcap/app/php/bin/php-config --extension-dir | sed 's|/tmp/staged|/home/vcap|')"],
             ["chmod", "-R 755 /home/vcap/app"],
@@ -255,17 +256,17 @@ class AppDynamicsInstaller(PHPExtensionHelper):
             [ 'echo sslflag set to $sslflag' ],
             [ '/home/vcap/app/appdynamics/appdynamics-php-agent/install.sh '
               '$sslflag '
-              '-a "$APPDYNAMICS_ACCOUNT@$APPDYNAMICS_ACCESS_KEY"'
+              '-a "$APPDYNAMICS_ACCOUNT@$APPDYNAMICS_ACCESS_KEY" '
               '-e "$PHP_EXT_DIR" '
-              '-p "/home/vcap/app/php/bin"'
+              '-p "/home/vcap/app/php/bin" '
               '-i ./app/appdynamics/phpini '
-              '-v "$PHP_VERSION"'
-              '--ignore-permissions'
-              '"$APPDYNAMICS_HOST"'
-              '"$APPDYNAMICS_PORT"'
-              '"$APP_NAME"'
-              '"$APPDYNAMICS_TIER"'
-              '"node-$CF_INSTANCE_INDEX"'],
+              '-v "$PHP_VERSION" '
+              '--ignore-permissions '
+              '"$APPDYNAMICS_HOST" '
+              '"$APPDYNAMICS_PORT" '
+              '"$APP_NAME" '
+              '"$APPDYNAMICS_TIER" '
+              '"node-$CF_INSTANCE_INDEX" '],
             [ 'cat', '/home/vcap/app/appdynamics/phpini/appdynamics_agent.ini >> /home/vcap/app/php/etc/php.ini'],
             [ 'cat', '/home/vcap/app/appdynamics/phpini/appdynamics_agent.ini'],
             [ 'echo', '"done preprocess"'],
