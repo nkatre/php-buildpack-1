@@ -225,7 +225,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         print("method: _preprocess_commands")
         commands = [
             [ 'echo', '" in preprocess;"'],
-            [ 'env'],
+            [ 'env | grep "APPD_CONF_CONTROLLER_HOST"'],
             ["export", "PHP_VERSION=$(/home/vcap/app/php/bin/php-config --version | cut -d '.' -f 1,2)"],
             ["export", "PHP_EXT_DIR=$(/home/vcap/app/php/bin/php-config --extension-dir | sed 's|/tmp/staged|/home/vcap|')"],
             ["chmod -R 755 /home/vcap/app"],
@@ -240,6 +240,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
             [ 'export', ' APPD_CONF_SSL_ENABLED=`echo $VCAP_SERVICES | sed -e \'s/.*ssl-enabled.:.//g;s/\".*.*//g\'`'],
             [ 'if [ $sslenabled == \"true\" ] ; then export sslflag=-s ; fi; '],
             [ 'echo sslflag set to $sslflag' ],
+            [ 'env | grep "APPD_CONF_CONTROLLER_HOST"'],
             [ '/home/vcap/app/appdynamics/appdynamics-php-agent/install.sh '
               '$sslflag '
               '-a "$APPD_CONF_ACCOUNT_NAME@$APPD_CONF_ACCESS_KEY" '
