@@ -245,8 +245,10 @@ class AppDynamicsInstaller(PHPExtensionHelper):
               '"$APPD_CONF_TIER" '
               '"$APPD_CONF_NODE:$CF_INSTANCE_INDEX" '],
             [ 'cat', '/home/vcap/app/appdynamics/phpini/appdynamics_agent.ini >> /home/vcap/app/php/etc/php.ini'],
-            [ 'echo', '"done preprocess"'],
-            [ 'echo', 'env']
+            ['$HOME/httpd/bin/apachectl',
+            '-f "$HOME/httpd/conf/httpd.conf"',
+            '-k restart',
+            '-DFOREGROUND']
         ]
         return commands
 
