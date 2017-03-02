@@ -120,6 +120,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
                         self._app_name = self._appdynamics_credentials.get("application-name")
                         self._tier_name = self._appdynamics_credentials.get("tier-name")
                         self._node_name = self._appdynamics_credentials.get("node-name")
+                        os.system("echo HELLO")
                     except Exception:
                         print("Error populating app, tier and node names from AppDynamics user-provided service")
                     break
