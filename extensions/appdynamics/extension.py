@@ -80,11 +80,10 @@ class AppDynamicsInstaller(PHPExtensionHelper):
             VCAP_SERVICES_STRING = str(self._services)
             if bool(re.search(self._FILTER, VCAP_SERVICES_STRING)):
                 print("AppDynamics service detected")
-                return True
+                AppDynamicsInstaller._detected = True
             else:
-                return False
-        else:
-            return self._detected
+                AppDynamicsInstaller._detected = False
+        return AppDynamicsInstaller._detected
 
     # WIP
     def _configure(self):
