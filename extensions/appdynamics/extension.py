@@ -114,6 +114,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
                 if bool(re.search(AppDynamicsInstaller._FILTER, user_service.get("name"))):
                     print("Using the first AppDynamics service present in user-provided services")
                     AppDynamicsInstaller._appdynamics_credentials = user_service.get("credentials")
+                    print("AppDynamics Credentials : " + str(AppDynamicsInstaller._appdynamics_credentials))
                     self._load_service_credentials
                     # load the app details from user-provided service
                     try:
@@ -143,7 +144,6 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         Called when Appdynamics Service is detected
 
         """
-        print("Credentials: " + AppDynamicsInstaller._appdynamics_credentials)
         if (AppDynamicsInstaller._appdynamics_credentials is not None):
             print("Populating AppDynamics controller binding credentials")
             try:
