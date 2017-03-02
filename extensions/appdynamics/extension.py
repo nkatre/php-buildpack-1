@@ -191,7 +191,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         print("method: _service_environment")
         env = {
             'PHP_VERSION':"$(/home/vcap/app/php/bin/php-config --version | cut -d '.' -f 1,2)",
-            'APPD_CONF_CONTROLLER_HOST': "`print self._host_name`",
+            'APPD_CONF_CONTROLLER_HOST': self._host_name,
             'APPD_CONF_CONTROLLER_PORT': self._port,
             'APPD_CONF_ACCOUNT_NAME': self._account_name,
             'APPD_CONF_ACCESS_KEY': self._account_access_key,
@@ -213,11 +213,6 @@ class AppDynamicsInstaller(PHPExtensionHelper):
             '-f "$HOME/httpd/conf/httpd.conf"',
             '-k restart',
             '-DFOREGROUND')
-            #'appdynamics_proxy': (
-            #    '$HOME/appdynamics-php-agent/proxy/runProxy',
-            #    '-d "$HOME/appdynamics-php-agent/proxy"',
-            #    ''
-            #)
         }
 
     #5
@@ -229,7 +224,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
             [ 'echo', 'env'],
             ["export", "PHP_VERSION=$(/home/vcap/app/php/bin/php-config --version | cut -d '.' -f 1,2)"],
             ["export", "PHP_EXT_DIR=$(/home/vcap/app/php/bin/php-config --extension-dir | sed 's|/tmp/staged|/home/vcap|')"]
-            [ 'chmod', '-R 755 /home/vcap/app'],
+            ["chmod", "-R 755 /home/vcap/app"],
             [ 'chmod', '-R 777 /home/vcap/app/appdynamics/appdynamics-php-agent/logs'],
             [ 'export', ' APPD_CONF_TIER=`echo $VCAP_APPLICATION | sed -e \'s/.*application_name.:.//g;s/\".*application_uri.*//g\' `'],
             [ 'if [ -z $application_name ]; then export APPD_CONF_APP=$APPD_CONF_TIER; else export APPD_CONF_APP=$application_name; fi'],
