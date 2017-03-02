@@ -44,11 +44,9 @@ class AppDynamicsInstaller(PHPExtensionHelper):
     def _defaults(self):
         """Returns a set of default environment variables.
 
-        Create and return a list of default environment variables.  These
+        Return a dictionary of default environment variables. These
         are merged with the build pack context when this the extension
         object is created.
-
-        Return a dictionary.
         """
         return {
                 'APPDYNAMICS_HOST': 'packages.appdynamics.com',
@@ -58,12 +56,11 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         }
 
     #1
-    # (Done)
     def _should_compile(self):
         """Determines if the extension should install it's payload.
 
         This check is called during the `compile` method of the extension.
-        It should return true if the payload of this extension should
+        It should return true if the payload of the extension should
         be installed (i.e. the `install` method is called).
         """
         if AppDynamicsInstaller._detected is None:
@@ -76,12 +73,10 @@ class AppDynamicsInstaller(PHPExtensionHelper):
                 AppDynamicsInstaller._detected = False
         return AppDynamicsInstaller._detected
 
-    # WIP
     def _configure(self):
-        """Configure the extension.
+        """Configures the extension.
 
-        Called when `should_configure` returns true.  Implement this
-        method for your extension.
+        Called when `should_configure` returns true.
         """
         print("method: _configure")
         self._load_service_info()
@@ -89,7 +84,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
 
     def _load_service_info(self):
         """
-        Populate the controller binding credentials and application details for AppDynamics service
+        Get controller binding credentials and application details for AppDynamics service
 
         """
         print("Setting AppDynamics credentials info...")
@@ -127,7 +122,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
 
     def _load_service_credentials(self):
         """
-        Configure the AppDynamics Controller Binding credentials
+        Configure AppDynamics Controller Binding credentials
         Called when Appdynamics Service is detected
 
         """
@@ -146,7 +141,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
 
     def _load_app_details(self):
         """
-        Configure the AppDynamics application details
+        Configure AppDynamics application details
         Called when AppDynamics Service is detected
 
         """
@@ -160,7 +155,6 @@ class AppDynamicsInstaller(PHPExtensionHelper):
 
 
     # 2
-    # Done
     def _compile(self, install):
         """Install the payload of this extension.
 
@@ -177,7 +171,11 @@ class AppDynamicsInstaller(PHPExtensionHelper):
 
     #3
     def _service_environment(self):
-        """Return dict of environment variables x[var]=val"""
+        """
+        Sets environment variables for application container
+
+        Returns dict of environment variables x[var]=val
+        """
         print("Setting AppDynamics service environment variables")
         env = {
             'PHP_VERSION': "$(/home/vcap/app/php/bin/php-config --version | cut -d '.' -f 1,2)",
@@ -196,7 +194,12 @@ class AppDynamicsInstaller(PHPExtensionHelper):
 
     #4 (Done)
     def _service_commands(self):
-        """Return dict of commands to run x[name]=cmd"""
+        """
+        Determines what commands will execute when the application runs (normally it's HTTPD &
+        PHP-FPM or Nginx & PHP-FPM). These commands are not run at staging.
+
+        Returns dict of commands to run x[name]=cmd
+        """
         print("Running AppDynamics service commands")
         return {
             'httpd': (
@@ -209,7 +212,11 @@ class AppDynamicsInstaller(PHPExtensionHelper):
 
     #5
     def _preprocess_commands(self):
-        """Return your list of preprocessing commands"""
+        """
+        Commands which are run after staging inside application container.
+        
+        Returns list of commands
+        """
         print("Running AppDynamics preprocess commands")
         commands = [
             [ 'echo "Installing AppDynamics package..."'],
