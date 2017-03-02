@@ -25,9 +25,9 @@ import re
 _log = logging.getLogger('appdynamics')
 
 class AppDynamicsInstaller(PHPExtensionHelper):
-    _detected = None                         # AppDynamics Service is detected
+    _detected = None                # Boolean to check if AppDynamics service is detected
     _FILTER = "app[-]?dynamics"
-    _appdynamics_credentials = None # JSON which mentions all appdynamics credentials
+    _appdynamics_credentials = None # JSON which contains all appdynamics credentials
     _account_access_key = None      # AppDynamics Controller Account Access Key
     _account_name = None            # AppDynamics Controller Account Name
     _host_name = None               # AppDynamics Controller Host Address
@@ -39,15 +39,6 @@ class AppDynamicsInstaller(PHPExtensionHelper):
     _node_name = None               # AppDynamics Node name
     def __init__(self, ctx):
         PHPExtensionHelper.__init__(self, ctx)
-        try:
-            print("Initializing")
-            if ctx['PHP_VM'] == 'php':
-                print("method: constructor")
-
-        except Exception:
-            _log.warn("Error installing AppDynamics! "
-                                "AppDynamics will not be available.")
-
 
     #0
     def _defaults(self):
@@ -65,7 +56,6 @@ class AppDynamicsInstaller(PHPExtensionHelper):
                 'APPDYNAMICS_PACKAGE': 'appdynamics-php-agent-x64-linux-{APPDYNAMICS_VERSION}.tar.bz2',
                 'APPDYNAMICS_DOWNLOAD_URL': 'https://{APPDYNAMICS_HOST}/php/{APPDYNAMICS_VERSION}/{APPDYNAMICS_PACKAGE}'
         }
-
 
     #1
     # (Done)
@@ -102,11 +92,10 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         Populate the controller binding credentials and application details for AppDynamics service
 
         """
-        print("Loading AppDynamics service info.")
+        print("Setting AppDynamics credentials info...")
         services = self._ctx.get('VCAP_SERVICES', {})
         service_defs = services.get("appdynamics")
         if service_defs is None:
-            print("AppDynamics service not present in VCAP_SERVICES")
             # Search in user-provided service
             print("Searching for appdynamics service in user-provided services")
             user_services = services.get("user-provided")
@@ -114,16 +103,15 @@ class AppDynamicsInstaller(PHPExtensionHelper):
                 if bool(re.search(AppDynamicsInstaller._FILTER, user_service.get("name"))):
                     print("Using the first AppDynamics service present in user-provided services")
                     AppDynamicsInstaller._appdynamics_credentials = user_service.get("credentials")
-                    print("AppDynamics Credentials : " + str(AppDynamicsInstaller._appdynamics_credentials))
                     self._load_service_credentials()
-                    # load the app details from user-provided service
                     try:
-                        print("Populating application details from user-provided service")
+                        # load the app details from user-provided service
+                        print("Setting AppDynamics App, Tier and Node names from user-provided service")
                         AppDynamicsInstaller._app_name = AppDynamicsInstaller._appdynamics_credentials.get("application-name")
                         AppDynamicsInstaller._tier_name = AppDynamicsInstaller._appdynamics_credentials.get("tier-name")
                         AppDynamicsInstaller._node_name = AppDynamicsInstaller._appdynamics_credentials.get("node-name")
                     except Exception:
-                        print("Error populating app, tier and node names from AppDynamics user-provided service")
+                        print("Exception occurred while setting AppDynamics App, Tier and Node names from user-provided service")
                     break
         elif len(service_defs) > 1:
             print("Multiple AppDynamics services found in VCAP_SERVICES, using credentials from first one.")
@@ -137,17 +125,14 @@ class AppDynamicsInstaller(PHPExtensionHelper):
             self._load_app_details()
 
 
-
     def _load_service_credentials(self):
         """
         Configure the AppDynamics Controller Binding credentials
         Called when Appdynamics Service is detected
 
         """
-        print("method: _load_service_credentials")
-        print("Creds: " + str(AppDynamicsInstaller._appdynamics_credentials))
-        if (AppDynamicsInstaller._appdynamics_credentials != None):
-            print("Populating AppDynamics controller binding credentials")
+        if (AppDynamicsInstaller._appdynamics_credentials is not None):
+            print("Setting AppDynamics Controller Binding Credentials")
             try:
                 AppDynamicsInstaller._host_name = AppDynamicsInstaller._appdynamics_credentials.get("host-name")
                 AppDynamicsInstaller._port = AppDynamicsInstaller._appdynamics_credentials.get("port")
@@ -165,7 +150,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         Called when AppDynamics Service is detected
 
         """
-        print("Populating application details from AppDynamics service")
+        print("Setting AppDynamics App, Tier and Node names")
         try:
             AppDynamicsInstaller._app_name = self._application.get("space_name") + ":" + self._application.get("application_name")
             AppDynamicsInstaller._tier_name = self._application.get("application_name")
@@ -185,16 +170,15 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         The argument is the installer object that is passed into the
         `compile` method.
         """
-        print("method: _compile")
-        print("Installing AppDynamics")
+        print("Downloading AppDynamics package...")
         install.package('APPDYNAMICS')
         print("Downloaded AppDynamics package")
-        print("Calling install script")
+
 
     #3
     def _service_environment(self):
         """Return dict of environment variables x[var]=val"""
-        print("method: _service_environment")
+        print("Setting AppDynamics service environment variables")
         env = {
             'PHP_VERSION': "$(/home/vcap/app/php/bin/php-config --version | cut -d '.' -f 1,2)",
             'PHP_EXT_DIR': "$(/home/vcap/app/php/bin/php-config --extension-dir | sed 's|/tmp/staged|/home/vcap|')",
@@ -213,7 +197,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
     #4 (Done)
     def _service_commands(self):
         """Return dict of commands to run x[name]=cmd"""
-        print("method: _service_commands")
+        print("Running service commands")
         return {
             'httpd': (
             '$HOME/httpd/bin/apachectl',
@@ -222,12 +206,14 @@ class AppDynamicsInstaller(PHPExtensionHelper):
             '-DFOREGROUND')
         }
 
+
     #5
     def _preprocess_commands(self):
         """Return your list of preprocessing commands"""
-        print("method: _preprocess_commands")
+        print("Running preprocess commands")
         commands = [
-            [ 'chmod -R 755 /home/vcap/app/appdynamics'],
+            [ 'echo "Installing AppDynamics package..."']
+            [ 'chmod -R 755 /home/vcap/app/appdynamics/appdynamics-php-agent'],
             [ 'chmod -R 777 /home/vcap/app/appdynamics/appdynamics-php-agent/logs'],
             [ 'if [ $APPD_CONF_SSL_ENABLED == \"true\" ] ; then export sslflag=-s ; fi; '],
             [ 'if [ $sslflag == \"-s\"] ; then echo sslflag set to $sslflag ; fi; '],
@@ -245,10 +231,11 @@ class AppDynamicsInstaller(PHPExtensionHelper):
               '"$APPD_CONF_TIER" '
               '"$APPD_CONF_NODE:$CF_INSTANCE_INDEX" '],
             [ 'cat', '/home/vcap/app/appdynamics/phpini/appdynamics_agent.ini >> /home/vcap/app/php/etc/php.ini'],
-            ['/home/vcap/app/httpd/bin/apachectl',
+            [ '/home/vcap/app/httpd/bin/apachectl',
             '-f "/home/vcap/app/httpd/conf/httpd.conf"',
             '-k restart',
             '-DFOREGROUND']
+            [ 'echo "AppDynamics installation complete"']
         ]
         return commands
 
