@@ -150,10 +150,9 @@ class AppDynamicsInstaller(PHPExtensionHelper):
             print("Populating AppDynamics controller binding credentials")
             try:
                 AppDynamicsInstaller._host_name = AppDynamicsInstaller._appdynamics_credentials.get("host-name")
-                print("Controller Host Name: " + AppDynamicsInstaller._host_name)
                 AppDynamicsInstaller._port = AppDynamicsInstaller._appdynamics_credentials.get("port")
                 AppDynamicsInstaller._account_name = AppDynamicsInstaller._appdynamics_credentials.get("account-name")
-                AppDynamicsInstaller._account_access_key = AppDynamicsInstaller._appdynamics_credentials.get("account-accesss-key")
+                AppDynamicsInstaller._account_access_key = AppDynamicsInstaller._appdynamics_credentials.get("account-access-key")
                 AppDynamicsInstaller._ssl_enabled = AppDynamicsInstaller._appdynamics_credentials.get("ssl-enabled")
             except Exception:
                 print("Error populating AppDynamics controller binding credentials")
@@ -232,8 +231,8 @@ class AppDynamicsInstaller(PHPExtensionHelper):
             ["chmod -R 755 /home/vcap/app"],
             [ 'chmod -R 777 /home/vcap/app/appdynamics/appdynamics-php-agent/logs'],
             [ 'if [ $APPD_CONF_SSL_ENABLED == \"true\" ] ; then export sslflag=-s ; fi; '],
-            [ 'echo sslflag set to $sslflag' ],
-            [ 'env | grep "APPD_CONF_CONTROLLER_HOST"'],
+            [ 'if [ $sslflag == \"-s\"] ; then echo sslflag set to $sslflag ; fi; '],
+            [ 'env | grep "APPD_CONF_ACCESS_KEY"'],
             [ '/home/vcap/app/appdynamics/appdynamics-php-agent/install.sh '
               '$sslflag '
               '-a "$APPD_CONF_ACCOUNT_NAME@$APPD_CONF_ACCESS_KEY" '
