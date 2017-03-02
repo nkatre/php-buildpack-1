@@ -229,20 +229,9 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         print("method: _preprocess_commands")
         commands = [
             [ 'echo', '" in preprocess;"'],
-            [ 'env | grep "APPD_CONF_CONTROLLER_HOST"'],
-            ["export", "PHP_VERSION=$(/home/vcap/app/php/bin/php-config --version | cut -d '.' -f 1,2)"],
-            ["export", "PHP_EXT_DIR=$(/home/vcap/app/php/bin/php-config --extension-dir | sed 's|/tmp/staged|/home/vcap|')"],
             ["chmod -R 755 /home/vcap/app"],
             [ 'chmod -R 777 /home/vcap/app/appdynamics/appdynamics-php-agent/logs'],
-            [ 'export', ' APPD_CONF_TIER=`echo $VCAP_APPLICATION | sed -e \'s/.*application_name.:.//g;s/\".*application_uri.*//g\' `'],
-            [ 'if [ -z $application_name ]; then export APPD_CONF_APP=$APPD_CONF_TIER; else export APPD_CONF_APP=$application_name; fi'],
-            [ 'export', ' APPD_CONF_NODE=$APPD_CONF_TIER:$CF_INSTANCE_INDEX'],
-            [ 'export', ' APPD_CONF_ACCOUNT_NAME=$APPD_CONF_ACCOUNT_NAME'],
-            [ 'export', ' APPD_CONF_ACCESS_KEY=`echo $VCAP_SERVICES | sed -e \'s/.*account-access-key.:.//g;s/\".*host-name.*//g\' `'],
-            [ 'export', ' APPD_CONF_CONTROLLER_HOST=`echo  HELLO $VCAP_SERVICES | sed -e \'s/.*host-name.:.//g;s/\".*ssl-enabled.*//g\' `'],
-            [ 'export', ' APPD_CONF_CONTROLLER_PORT=`echo $VCAP_SERVICES | sed -e \'s/.*port.:.//g;s/\".*account-access-key.*//g\' `'],
-            [ 'export', ' APPD_CONF_SSL_ENABLED=`echo $VCAP_SERVICES | sed -e \'s/.*ssl-enabled.:.//g;s/\".*.*//g\'`'],
-            [ 'if [ $sslenabled == \"true\" ] ; then export sslflag=-s ; fi; '],
+            [ 'if [ $APPD_CONF_SSL_ENABLED == \"true\" ] ; then export sslflag=-s ; fi; '],
             [ 'echo sslflag set to $sslflag' ],
             [ 'env | grep "APPD_CONF_CONTROLLER_HOST"'],
             [ '/home/vcap/app/appdynamics/appdynamics-php-agent/install.sh '
@@ -257,7 +246,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
               '"$APPD_CONF_CONTROLLER_PORT" '
               '"$APPD_CONF_APP" '
               '"$APPD_CONF_TIER" '
-              '"$APPD_CONF_NODE" '],
+              '"$APPD_CONF_TIER:$CF_INSTANCE_INDEX" '],
             [ 'cat', '/home/vcap/app/appdynamics/phpini/appdynamics_agent.ini >> /home/vcap/app/php/etc/php.ini'],
             [ 'cat', '/home/vcap/app/appdynamics/phpini/appdynamics_agent.ini'],
             [ 'echo', '"done preprocess"'],
