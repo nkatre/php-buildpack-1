@@ -77,7 +77,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         """
         print("method: _should_compile")
         VCAP_SERVICES_STRING = str(self._services)
-        if bool(re.search(self.FILTER, VCAP_SERVICES_STRING)):
+        if bool(re.search(self._FILTER, VCAP_SERVICES_STRING)):
             print("AppDynamics service detected")
             return True
         else: 
