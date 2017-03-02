@@ -169,7 +169,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         try:
             AppDynamicsInstaller._app_name = self._application.get("space_name") + ":" + self._application.get("application_name")
             AppDynamicsInstaller._tier_name = self._application.get("application_name")
-            AppDynamicsInstaller._node_name = self._application.get("application_name") + ":" + "node"  # ToDo Change the node name using lazy initialization
+            AppDynamicsInstaller._node_name = AppDynamicsInstaller._tier_name
         except Exception:
             print("Error populating app, tier and node names from AppDynamics service")
 
@@ -243,7 +243,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
               '"$APPD_CONF_CONTROLLER_PORT" '
               '"$APPD_CONF_APP" '
               '"$APPD_CONF_TIER" '
-              '"$APPD_CONF_TIER:$CF_INSTANCE_INDEX" '],
+              '"$APPD_CONF_NODE:$CF_INSTANCE_INDEX" '],
             [ 'cat', '/home/vcap/app/appdynamics/phpini/appdynamics_agent.ini >> /home/vcap/app/php/etc/php.ini'],
             [ 'echo', '"done preprocess"'],
             [ 'echo', 'env']
