@@ -198,17 +198,24 @@ class AppDynamicsInstaller(PHPExtensionHelper):
     #4 (Done)
     def _service_commands(self):
         """
-        Determines what commands will execute when the application runs (normally it's HTTPD &
-        PHP-FPM or Nginx & PHP-FPM). These commands are not run at staging.
+        Commands for services that need to run. Things like HTTPD, Nginx, PHP-FPM. These are services that will
+        run and continue running in the runtime container.
 
         Returns dict of commands to run x[name]=cmd
         """
         print("Running AppDynamics service commands")
         return {
+            'appd-java-proxy': (
+            'home/vcap/app/appdynamics/appdynamics-php-agent/proxy/runProxy '
+            '-d home/vcap/app/appdynamics/appdynamics-php-agent/proxy '
+            '-r home/vcap/app/appdynamics/appdynamics-php-agent '
+            '/tmp/proxy.communication '
+            '/tmp/agentLogs'
+            ),
             'httpd': (
             '$HOME/httpd/bin/apachectl',
             '-f "$HOME/httpd/conf/httpd.conf"',
-            '-k restart',
+            '-k start',
             '-DFOREGROUND')
         }
 
@@ -216,7 +223,9 @@ class AppDynamicsInstaller(PHPExtensionHelper):
     #5
     def _preprocess_commands(self):
         """
-        Commands which are run after staging inside application container.
+        Commands that the build pack needs to run in the runtime container prior to the app starting.
+        Use these sparingly as they run before the app starts and count against the time that an application has
+        to start up successfully (i.e. if it takes too long app will fail to start).
 
         Returns list of commands
         """
@@ -241,10 +250,6 @@ class AppDynamicsInstaller(PHPExtensionHelper):
               '"$APPD_CONF_TIER" '
               '"$APPD_CONF_NODE:$CF_INSTANCE_INDEX" '],
             [ 'cat', '/home/vcap/app/appdynamics/phpini/appdynamics_agent.ini >> /home/vcap/app/php/etc/php.ini'],
-            [ '/home/vcap/app/httpd/bin/apachectl',
-            '-f "/home/vcap/app/httpd/conf/httpd.conf"',
-            '-k restart',
-            '-DFOREGROUND'],
             [ 'echo "AppDynamics installation complete"']
         ]
         return commands
