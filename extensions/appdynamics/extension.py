@@ -219,7 +219,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         os.system("chmod -R 755 /home/vcap")
         os.system("chmod -R 777 /home/vcap/app/appdynamics/appdynamics-php-agent/logs")
         os.system("if [[ $APPD_CONF_SSL_ENABLED == \"true\" ]] ; then export sslflag=-s ; echo sslflag set to $sslflag ; fi; ")
-        os.sytem('/home/vcap/app/appdynamics/appdynamics-php-agent/install.sh \
+        os.system('/home/vcap/app/appdynamics/appdynamics-php-agent/install.sh \
         $sslflag \
         -a "$APPD_CONF_ACCOUNT_NAME@$APPD_CONF_ACCESS_KEY" \
         -e "$PHP_EXT_DIR" \
