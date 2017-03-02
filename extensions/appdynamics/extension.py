@@ -114,7 +114,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
                 if bool(re.search(AppDynamicsInstaller._FILTER, user_service.get("name"))):
                     print("Using the first AppDynamics service present in user-provided services")
                     AppDynamicsInstaller._appdynamics_credentials = user_service.get("credentials")
-                    AppDynamicsInstaller._load_service_credentials
+                    self._load_service_credentials
                     # load the app details from user-provided service
                     try:
                         print("Populating application details from user-provided service")
