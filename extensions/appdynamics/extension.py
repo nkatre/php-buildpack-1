@@ -115,7 +115,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
                     print("Using the first AppDynamics service present in user-provided services")
                     AppDynamicsInstaller._appdynamics_credentials = user_service.get("credentials")
                     print("AppDynamics Credentials : " + str(AppDynamicsInstaller._appdynamics_credentials))
-                    self._load_service_credentials
+                    self._load_service_credentials()
                     # load the app details from user-provided service
                     try:
                         print("Populating application details from user-provided service")
@@ -128,12 +128,12 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         elif len(service_defs) > 1:
             print("Multiple AppDynamics services found in VCAP_SERVICES, using credentials from first one.")
             AppDynamicsInstaller._appdynamics_credentials = service_defs[0].get("credentials")
-            self._load_service_credentials
+            self._load_service_credentials()
             self._load_app_details()
         elif len(service_defs) == 1:
             print("AppDynamics service found in VCAP_SERVICES")
             AppDynamicsInstaller._appdynamics_credentials = service_defs[0].get("credentials")
-            self._load_service_credentials
+            self._load_service_credentials()
             self._load_app_details()
 
 
