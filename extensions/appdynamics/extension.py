@@ -57,7 +57,8 @@ class AppDynamicsInstaller(PHPExtensionHelper):
 
     #1
     def _should_compile(self):
-        """Determines if the extension should install it's payload.
+        """
+        Determines if the extension should install it's payload.
 
         This check is called during the `compile` method of the extension.
         It should return true if the payload of the extension should
@@ -74,7 +75,8 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         return AppDynamicsInstaller._detected
 
     def _configure(self):
-        """Configures the extension.
+        """
+        Configures the extension.
 
         Called when `should_configure` returns true.
         """
@@ -156,7 +158,8 @@ class AppDynamicsInstaller(PHPExtensionHelper):
 
     # 2
     def _compile(self, install):
-        """Install the payload of this extension.
+        """
+        Install the payload of this extension.
 
         Called when `_should_compile` returns true.  This is responsible
         for installing the payload of the extension.
@@ -214,7 +217,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
     def _preprocess_commands(self):
         """
         Commands which are run after staging inside application container.
-        
+
         Returns list of commands
         """
         print("Running AppDynamics preprocess commands")
