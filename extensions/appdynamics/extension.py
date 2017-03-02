@@ -107,7 +107,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         """
         print("method: _compile")
         print("Installing AppDynamics")
-        install.package('AppDynamics')
+        install.package('APPDYNAMICS')
         print("Downloaded AppDynamics package")
 
 
