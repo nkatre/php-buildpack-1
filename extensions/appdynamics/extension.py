@@ -26,19 +26,19 @@ _log = logging.getLogger('appdynamics')
 
 class AppDynamicsInstaller(PHPExtensionHelper):
     _detected = None                         # AppDynamics Service is detected
+    _FILTER = "app[-]?dynamics"
+    _appdynamics_credentials = None # JSON which mentions all appdynamics credentials
+    _account_access_key = None      # AppDynamics Controller Account Access Key
+    _account_name = None            # AppDynamics Controller Account Name
+    _host_name = None               # AppDynamics Controller Host Address
+    _port = None                    # AppDynamics Controller Port
+    _ssl_enabled = None             # AppDynamics Controller SSL Enabled
+    # Specify the Application details
+    _app_name = None                # AppDynamics App name
+    _tier_name = None               # AppDynamics Tier name
+    _node_name = None               # AppDynamics Node name
     def __init__(self, ctx):
         PHPExtensionHelper.__init__(self, ctx)
-        self._FILTER = "app[-]?dynamics"
-        self._appdynamics_credentials = None # JSON which mentions all appdynamics credentials
-        self._account_access_key = None      # AppDynamics Controller Account Access Key
-        self._account_name = None            # AppDynamics Controller Account Name
-        self._host_name = None               # AppDynamics Controller Host Address
-        self._port = None                    # AppDynamics Controller Port
-        self._ssl_enabled = None             # AppDynamics Controller SSL Enabled
-        # Specify the Application details
-        self._app_name = None                # AppDynamics App name
-        self._tier_name = None               # AppDynamics Tier name
-        self._node_name = None               # AppDynamics Node name
         try:
             print("Initializing")
             if ctx['PHP_VM'] == 'php':
@@ -78,8 +78,9 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         """
         if AppDynamicsInstaller._detected is None:
             VCAP_SERVICES_STRING = str(self._services)
-            if bool(re.search(self._FILTER, VCAP_SERVICES_STRING)):
+            if bool(re.search(AppDynamicsInstaller._FILTER, VCAP_SERVICES_STRING)):
                 print("AppDynamics service detected")
+                _log.info("AppDynamics service detected")
                 AppDynamicsInstaller._detected = True
             else:
                 AppDynamicsInstaller._detected = False
@@ -110,27 +111,27 @@ class AppDynamicsInstaller(PHPExtensionHelper):
             print("Searching for appdynamics service in user-provided services")
             user_services = services.get("user-provided")
             for user_service in user_services:
-                if bool(re.search(self._FILTER, user_service.get("name"))):
+                if bool(re.search(AppDynamicsInstaller._FILTER, user_service.get("name"))):
                     print("Using the first AppDynamics service present in user-provided services")
-                    self._appdynamics_credentials = user_service.get("credentials")
-                    self._load_service_credentials
+                    AppDynamicsInstaller._appdynamics_credentials = user_service.get("credentials")
+                    AppDynamicsInstaller._load_service_credentials
                     # load the app details from user-provided service
                     try:
                         print("Populating application details from user-provided service")
-                        self._app_name = self._appdynamics_credentials.get("application-name")
-                        self._tier_name = self._appdynamics_credentials.get("tier-name")
-                        self._node_name = self._appdynamics_credentials.get("node-name")
+                        AppDynamicsInstaller._app_name = AppDynamicsInstaller._appdynamics_credentials.get("application-name")
+                        AppDynamicsInstaller._tier_name = AppDynamicsInstaller._appdynamics_credentials.get("tier-name")
+                        AppDynamicsInstaller._node_name = AppDynamicsInstaller._appdynamics_credentials.get("node-name")
                     except Exception:
                         print("Error populating app, tier and node names from AppDynamics user-provided service")
                     break
         elif len(service_defs) > 1:
             print("Multiple AppDynamics services found in VCAP_SERVICES, using credentials from first one.")
-            self._appdynamics_credentials = service_defs[0].get("credentials")
+            AppDynamicsInstaller._appdynamics_credentials = service_defs[0].get("credentials")
             self._load_service_credentials
             self._load_app_details()
         elif len(service_defs) == 1:
             print("AppDynamics service found in VCAP_SERVICES")
-            self._appdynamics_credentials = service_defs[0].get("credentials")
+            AppDynamicsInstaller._appdynamics_credentials = service_defs[0].get("credentials")
             self._load_service_credentials
             self._load_app_details()
 
@@ -142,14 +143,14 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         Called when Appdynamics Service is detected
 
         """
-        if (self._appdynamics_credentials is not None):
+        if (AppDynamicsInstaller._appdynamics_credentials is not None):
             print("Populating AppDynamics controller binding credentials")
             try:
-                self._host_name = self._appdynamics_credentials.get("host-name")
-                self._port = self._appdynamics_credentials.get("port")
-                self._account_name = self._appdynamics_credentials.get("account-name")
-                self._account_access_key = self._appdynamics_credentials.get("account-accesss-key")
-                self._ssl_enabled = self._appdynamics_credentials.get("ssl-enabled")
+                AppDynamicsInstaller._host_name = AppDynamicsInstaller._appdynamics_credentials.get("host-name")
+                AppDynamicsInstaller._port = AppDynamicsInstaller._appdynamics_credentials.get("port")
+                AppDynamicsInstaller._account_name = AppDynamicsInstaller._appdynamics_credentials.get("account-name")
+                AppDynamicsInstaller._account_access_key = AppDynamicsInstaller._appdynamics_credentials.get("account-accesss-key")
+                AppDynamicsInstaller._ssl_enabled = AppDynamicsInstaller._appdynamics_credentials.get("ssl-enabled")
             except Exception:
                 print("Error populating AppDynamics controller binding credentials")
         else:
@@ -163,9 +164,9 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         """
         print("Populating application details from AppDynamics service")
         try:
-            self._app_name = self._application.get("space_name") + ":" + self._application.get("application_name")
-            self._tier_name = self._application.get("application_name")
-            self._node_name = self._application.get("application_name") + ":" + "node"  # ToDo Change the node name using lazy initialization
+            AppDynamicsInstaller._app_name = self._application.get("space_name") + ":" + self._application.get("application_name")
+            AppDynamicsInstaller._tier_name = self._application.get("application_name")
+            AppDynamicsInstaller._node_name = self._application.get("application_name") + ":" + "node"  # ToDo Change the node name using lazy initialization
         except Exception:
             print("Error populating app, tier and node names from AppDynamics service")
 
@@ -194,14 +195,14 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         env = {
             'PHP_VERSION': "$(/home/vcap/app/php/bin/php-config --version | cut -d '.' -f 1,2)",
             'PHP_EXT_DIR': "$(/home/vcap/app/php/bin/php-config --extension-dir | sed 's|/tmp/staged|/home/vcap|')",
-            'APPD_CONF_CONTROLLER_HOST': self._host_name,
-            'APPD_CONF_CONTROLLER_PORT': self._port,
-            'APPD_CONF_ACCOUNT_NAME': self._account_name,
-            'APPD_CONF_ACCESS_KEY': self._account_access_key,
-            'APPD_CONF_SSL_ENABLED': self._ssl_enabled,
-            'APPD_CONF_APP': self._app_name,
-            'APPD_CONF_TIER': self._tier_name,
-            'APPD_CONF_NODE': self._node_name
+            'APPD_CONF_CONTROLLER_HOST': AppDynamicsInstaller._host_name,
+            'APPD_CONF_CONTROLLER_PORT': AppDynamicsInstaller._port,
+            'APPD_CONF_ACCOUNT_NAME': AppDynamicsInstaller._account_name,
+            'APPD_CONF_ACCESS_KEY': AppDynamicsInstaller._account_access_key,
+            'APPD_CONF_SSL_ENABLED': AppDynamicsInstaller._ssl_enabled,
+            'APPD_CONF_APP': AppDynamicsInstaller._app_name,
+            'APPD_CONF_TIER': AppDynamicsInstaller._tier_name,
+            'APPD_CONF_NODE': AppDynamicsInstaller._node_name
         }
         return env
 
