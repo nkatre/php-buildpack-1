@@ -190,6 +190,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
     def _modify_dir_rights(self):
         os.system("export PHP_VERSION=$(/home/vcap/app/php/bin/php-config --version | cut -d '.' -f 1,2)")
         os.system("export PHP_EXT_DIR=$(/home/vcap/app/php/bin/php-config --extension-dir | sed 's|/tmp/staged|/home/vcap|')")
+        os.system("echo PHP_VERSION=$PHP_VERSION")
         os.system("cd /home/vcap/app/appdynamics-php-agent")
         os.system("chmod -R 755 /home/vcap")
         os.system("chmod -R 777 /home/vcap/app/appdynamics/appdynamics-php-agent/logs")
