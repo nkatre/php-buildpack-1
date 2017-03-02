@@ -80,7 +80,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         if bool(re.search(self._FILTER, VCAP_SERVICES_STRING)):
             print("AppDynamics service detected")
             return True
-        else: 
+        else:
             return False
 
     # WIP
@@ -91,11 +91,46 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         method for your extension.
         """
         print("method: _configure")
-        pass
+        self._load_service_info()
+        self._load_service_credentials()
+
+
+    def _load_service_info(self):
+        print("Loading AppDynamics service info.")
+        services = self._ctx.get('VCAP_SERVICES', {})
+        service_defs = services.get("appdynamics")
+        if len(service_defs) == 0:
+            print("AppDynamics service not present in VCAP_SERVICES")
+            # Search in ups
+            print("Searching for appdynamics service in user-provided services")
+            user_services = services.get("user-provided")
+            for user_service in user_services:
+                if bool(re.search(self._FILTER, user_service.get("name"))):
+                    print("Using first detected AppDynamics service present in user-provided services")
+                    self._appdynamics_credentials = user_service.get("credentials")
+                    break
+        elif len(service_defs) > 1:
+            print("Multiple AppDynamics services found in VCAP_SERVICES, using credentials from first one.")
+            self._appdynamics_credentials = service_defs[0].get("credentials")
+        elif len(service_defs) == 1:
+            print("AppDynamics service found in VCAP_SERVICES")
+            self._appdynamics_credentials = service_defs[0].get("credentials")
 
 
 
-    # WIP
+    def _load_service_credentials(self):
+        if (self._appdynamics_credentials != None):
+            print("Populating AppDynamics controller binding credentials")
+            self._host_name = self._appdynamics_credentials.get("host-name")
+            self._port = self._appdynamics_credentials.get("port")
+            self._account_name = self._appdynamics_credentials.get("account-name")
+            self._account_access_key = self._appdynamics_credentials.get("account-accesss-key")
+            self._ssl_enabled = self._appdynamics_credentials.get("ssl-enabled")
+        else:
+            print("AppDynamics credentials empty")
+
+    # 2
+    # Done
     def _compile(self, install):
         """Install the payload of this extension.
 
