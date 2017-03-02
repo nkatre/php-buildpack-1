@@ -227,7 +227,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         """Return your list of preprocessing commands"""
         print("method: _preprocess_commands")
         commands = [
-            [ 'chmod -R 755 /home/vcap/app'],
+            [ 'chmod -R 755 /home/vcap/app/appdynamics'],
             [ 'chmod -R 777 /home/vcap/app/appdynamics/appdynamics-php-agent/logs'],
             [ 'if [ $APPD_CONF_SSL_ENABLED == \"true\" ] ; then export sslflag=-s ; fi; '],
             [ 'if [ $sslflag == \"-s\"] ; then echo sslflag set to $sslflag ; fi; '],
@@ -245,8 +245,8 @@ class AppDynamicsInstaller(PHPExtensionHelper):
               '"$APPD_CONF_TIER" '
               '"$APPD_CONF_NODE:$CF_INSTANCE_INDEX" '],
             [ 'cat', '/home/vcap/app/appdynamics/phpini/appdynamics_agent.ini >> /home/vcap/app/php/etc/php.ini'],
-            ['$HOME/httpd/bin/apachectl',
-            '-f "$HOME/httpd/conf/httpd.conf"',
+            ['/home/vcap/app/httpd/bin/apachectl',
+            '-f "/home/vcap/app/httpd/conf/httpd.conf"',
             '-k restart',
             '-DFOREGROUND']
         ]
