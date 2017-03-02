@@ -40,11 +40,11 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         self._tier_name = None               # AppDynamics Tier name
         self._node_name = None               # AppDynamics Node name
         try:
-            _log.info("Initializing")
+            print("Initializing")
             if ctx['PHP_VM'] == 'php':
-                _log.info("method: constructor")
+                print("method: constructor")
         except Exception:
-            _log.exception("Error installing AppDynamics! "
+            print("Error installing AppDynamics! "
                                 "AppDynamics will not be available.")
 
 
@@ -75,10 +75,10 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         It should return true if the payload of this extension should
         be installed (i.e. the `install` method is called).
         """
-        #_log.info("method: _should_compile")
+        #print("method: _should_compile")
         #VCAP_SERVICES_STRING = str(self._services)
         #if bool(re.search(self.FILTER, VCAP_SERVICES_STRING)):
-        #    _log.info("AppDynamics service detected")
+        #    print("AppDynamics service detected")
         #    return True
         #return False
         return True
@@ -106,7 +106,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         `compile` method.
         """
         _log("method: _compile")
-        _log.info("Installing AppDynamics")
+        print("Installing AppDynamics")
         install.package('AppDynamics')
         _log("Downloaded AppDynamics package")
 
