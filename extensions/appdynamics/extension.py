@@ -231,8 +231,8 @@ class AppDynamicsInstaller(PHPExtensionHelper):
             [ 'chmod -R 777 /home/vcap/app/appdynamics/appdynamics-php-agent/logs'],
             [ 'export', ' APPD_CONF_TIER=`echo $VCAP_APPLICATION | sed -e \'s/.*application_name.:.//g;s/\".*application_uri.*//g\' `'],
             [ 'if [ -z $application_name ]; then export APPD_CONF_APP=$APPD_CONF_TIER; else export APPD_CONF_APP=$application_name; fi'],
-            [ 'export', ' APPD_CONF_NODE=$APPD_CONF_TIER:`echo $VCAP_APPLICATION | sed -e \'s/.*instance_index.:.//g;s/\".*.*//g\'`'],
-            [ 'export', ' APPD_CONF_ACCOUNT_NAME=`echo $VCAP_SERVICES | sed -e \'s/.*account-name.:.//g;s/\".*port.*//g\' `'],
+            [ 'export', ' APPD_CONF_NODE=$APPD_CONF_TIER:$CF_INSTANCE_INDEX'],
+            [ 'export', ' APPD_CONF_ACCOUNT_NAME=$APPD_CONF_ACCOUNT_NAME'],
             [ 'export', ' APPD_CONF_ACCESS_KEY=`echo $VCAP_SERVICES | sed -e \'s/.*account-access-key.:.//g;s/\".*host-name.*//g\' `'],
             [ 'export', ' APPD_CONF_CONTROLLER_HOST=`echo  HELLO $VCAP_SERVICES | sed -e \'s/.*host-name.:.//g;s/\".*ssl-enabled.*//g\' `'],
             [ 'export', ' APPD_CONF_CONTROLLER_PORT=`echo $VCAP_SERVICES | sed -e \'s/.*port.:.//g;s/\".*account-access-key.*//g\' `'],
@@ -251,7 +251,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
               '"$APPD_CONF_CONTROLLER_PORT" '
               '"$APPD_CONF_APP" '
               '"$APPD_CONF_TIER" '
-              '"$APPD_CONF_NODE-$CF_INSTANCE_INDEX" '],
+              '"$APPD_CONF_NODE" '],
             [ 'cat', '/home/vcap/app/appdynamics/phpini/appdynamics_agent.ini >> /home/vcap/app/php/etc/php.ini'],
             [ 'cat', '/home/vcap/app/appdynamics/phpini/appdynamics_agent.ini'],
             [ 'echo', '"done preprocess"'],
