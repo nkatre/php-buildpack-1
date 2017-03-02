@@ -212,7 +212,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         """Return your list of preprocessing commands"""
         print("Running preprocess commands")
         commands = [
-            [ 'echo "Installing AppDynamics package..."']
+            [ 'echo "Installing AppDynamics package..."'],
             [ 'chmod -R 755 /home/vcap/app/appdynamics/appdynamics-php-agent'],
             [ 'chmod -R 777 /home/vcap/app/appdynamics/appdynamics-php-agent/logs'],
             [ 'if [ $APPD_CONF_SSL_ENABLED == \"true\" ] ; then export sslflag=-s ; fi; '],
