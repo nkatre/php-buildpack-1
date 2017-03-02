@@ -234,7 +234,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
             [ '/home/vcap/app/httpd/bin/apachectl',
             '-f "/home/vcap/app/httpd/conf/httpd.conf"',
             '-k restart',
-            '-DFOREGROUND']
+            '-DFOREGROUND'],
             [ 'echo "AppDynamics installation complete"']
         ]
         return commands
