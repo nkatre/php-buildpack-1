@@ -183,19 +183,35 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         print("Installing AppDynamics")
         install.package('APPDYNAMICS')
         print("Downloaded AppDynamics package")
-        print("Change the execution rights")
-        #self._modify_dir_rights
+        print("Run the install script")
+        self._modify_dir_rights
 
 
     def _modify_dir_rights(self):
-        self._appd_agent_path = os.path.join('@{HOME}', 'appdynamics', 'appdynamics-php-agent')
-        call(self._daemon_path)
+        os.system("$APPDYNAMICS_ACCOUNT=self._account_name")
+        os.system("PHP_VERSION=$(/home/vcap/app/php/bin/php-config --version | cut -d '.' -f 1,2)")
+        os.system("PHP_EXT_DIR=$(/home/vcap/app/php/bin/php-config --extension-dir | sed 's|/tmp/staged|/home/vcap|')")
+        os.system("cd /home/vcap/app/appdynamics-php-agent")
+        os.system("chmod -R 755 /home/vcap")
+        os.system("chmod -R 777 /home/vcap/app/appdynamics/appdynamics-php-agent/logs")
+        os.system("/home/vcap/app/appdynamics/appdynamics-php-agent/install.sh \
+        -a '$APPDYNAMICS_ACCOUNT@$APPDYNAMICS_ACCESS_KEY' \
+        -e '$PHP_EXT_DIR' \
+        -p '/home/vcap/app/php/bin' \
+        -i '/home/vcap/app/php/etc/' \
+        -v '$PHP_VERSION' \
+        --ignore-permissions \
+        '$APPDYNAMICS_HOST' \
+        '$APPDYNAMICS_PORT' \
+        '$APP_NAME' \
+        '$APPDYNAMICS_TIER' \
+        'node-$CF_INSTANCE_INDEX'")
 
     #3
     def _service_environment(self):
         """Return dict of environment variables x[var]=val"""
         print("method: _service_environment")
-        return {
+        env = {
             'APPD_CONF_CONTROLLER_HOST': self._host_name,
             'APPD_CONF_CONTROLLER_PORT': self._port,
             'APPD_CONF_ACCOUNT_NAME': self._account_name,
@@ -205,6 +221,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
             'APPD_CONF_TIER': self._tier_name,
             'APPD_CONF_NODE': self._node_name
         }
+        return env
 
 
     #4 (Done)
