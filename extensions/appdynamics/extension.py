@@ -75,13 +75,13 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         It should return true if the payload of this extension should
         be installed (i.e. the `install` method is called).
         """
-        #print("method: _should_compile")
-        #VCAP_SERVICES_STRING = str(self._services)
-        #if bool(re.search(self.FILTER, VCAP_SERVICES_STRING)):
-        #    print("AppDynamics service detected")
-        #    return True
-        #return False
-        return True
+        print("method: _should_compile")
+        VCAP_SERVICES_STRING = str(self._services)
+        if bool(re.search(self.FILTER, VCAP_SERVICES_STRING)):
+            print("AppDynamics service detected")
+            return True
+        else: 
+            return False
 
     # WIP
     def _configure(self):
