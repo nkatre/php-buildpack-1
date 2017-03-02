@@ -25,9 +25,9 @@ import re
 _log = logging.getLogger('appdynamics')
 
 class AppDynamicsInstaller(PHPExtensionHelper):
+
     def __init__(self, ctx):
         PHPExtensionHelper.__init__(self, ctx)
-        self._log = _log
         self._FILTER = "app[-]?dynamics"                 # make static final
         self._appdynamics_credentials = None # JSON which mentions all appdynamics credentials
         self._account_access_key = None      # AppDynamics Controller Account Access Key
@@ -40,11 +40,11 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         self._tier_name = None               # AppDynamics Tier name
         self._node_name = None               # AppDynamics Node name
         try:
-            self._log.info("Initializing")
+            _log.info("Initializing")
             if ctx['PHP_VM'] == 'php':
-                self._log.info("method: constructor")
+                _log.info("method: constructor")
         except Exception:
-            self._log.exception("Error installing AppDynamics! "
+            _log.exception("Error installing AppDynamics! "
                                 "AppDynamics will not be available.")
 
 
@@ -75,10 +75,10 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         It should return true if the payload of this extension should
         be installed (i.e. the `install` method is called).
         """
-        #self._log.info("method: _should_compile")
+        #_log.info("method: _should_compile")
         #VCAP_SERVICES_STRING = str(self._services)
         #if bool(re.search(self.FILTER, VCAP_SERVICES_STRING)):
-        #    self._log.info("AppDynamics service detected")
+        #    _log.info("AppDynamics service detected")
         #    return True
         #return False
         return True
@@ -90,7 +90,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         Called when `should_configure` returns true.  Implement this
         method for your extension.
         """
-        self._log("method: _configure")
+        _log("method: _configure")
         pass
 
 
@@ -105,23 +105,23 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         The argument is the installer object that is passed into the
         `compile` method.
         """
-        self._log("method: _compile")
-        self._log.info("Installing AppDynamics")
+        _log("method: _compile")
+        _log.info("Installing AppDynamics")
         install.package('AppDynamics')
-        self._log("Downloaded AppDynamics package")
+        _log("Downloaded AppDynamics package")
 
 
     #3
     def _service_environment(self):
         """Return dict of environment variables x[var]=val"""
-        self._log("method: _service_environment")
+        _log("method: _service_environment")
         return {}
 
 
     #4 (Done)
     def _service_commands(self):
         """Return dict of commands to run x[name]=cmd"""
-        self._log("method: _service_commands")
+        _log("method: _service_commands")
         return {
             'httpd': (
             '$HOME/httpd/bin/apachectl',
@@ -138,7 +138,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
     #5
     def _preprocess_commands(self):
         """Return your list of preprocessing commands"""
-        self._log("method: _preprocess_commands")
+        _log("method: _preprocess_commands")
         return ()
 
 AppDynamicsInstaller.register(__name__)
