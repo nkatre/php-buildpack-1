@@ -205,13 +205,6 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         """
         print("Running AppDynamics service commands")
         return {
-            '$PATH': (
-            'home/vcap/app/appdynamics/appdynamics-php-agent/proxy/runProxy '
-            '-d home/vcap/app/appdynamics/appdynamics-php-agent/proxy '
-            '-r home/vcap/app/appdynamics/appdynamics-php-agent '
-            '/tmp/proxy.communication '
-            '/tmp/agentLogs'
-            ),
             'httpd': (
             '$HOME/httpd/bin/apachectl',
             '-f "$HOME/httpd/conf/httpd.conf"',
