@@ -203,6 +203,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
 
         Returns dict of commands to run x[name]=cmd
         """
+        self._before_starting_service()
         print("Running AppDynamics service commands")
         return {
             'httpd': (
@@ -212,6 +213,27 @@ class AppDynamicsInstaller(PHPExtensionHelper):
             '-DFOREGROUND')
         }
 
+    def _before_starting_service(self):
+        print("method: _before_starting_service")
+        os.system("echo Installing AppDynamics package...")
+        os.system("chmod -R 755 /home/vcap")
+        os.system("chmod -R 777 /home/vcap/app/appdynamics/appdynamics-php-agent/logs")
+        os.system("if [[ $APPD_CONF_SSL_ENABLED == \"true\" ]] ; then export sslflag=-s ; echo sslflag set to $sslflag ; fi; ")
+        os.sytem('/home/vcap/app/appdynamics/appdynamics-php-agent/install.sh \
+        $sslflag \
+        -a "$APPD_CONF_ACCOUNT_NAME@$APPD_CONF_ACCESS_KEY" \
+        -e "$PHP_EXT_DIR" \
+        -p "/home/vcap/app/php/bin" \
+        -i "/home/vcap/app/appdynamics/phpini" \
+        -v "$PHP_VERSION" \
+        --ignore-permissions \
+        "$APPD_CONF_CONTROLLER_HOST" \
+        "$APPD_CONF_CONTROLLER_PORT" \
+        "$APPD_CONF_APP" \
+        "$APPD_CONF_TIER" \
+        "$APPD_CONF_NODE:$CF_INSTANCE_INDEX"')
+        os.system('cat /home/vcap/app/appdynamics/phpini/appdynamics_agent.ini >> /home/vcap/app/php/etc/php.ini')
+        os.system('echo "AppDynamics installation complete"')
 
     #5
     def _preprocess_commands(self):
@@ -223,6 +245,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         Returns list of commands
         """
         print("Running AppDynamics preprocess commands")
+        """
         commands = [
             [ 'echo "Installing AppDynamics package..."'],
             [ 'chmod -R 755 /home/vcap'],
@@ -246,5 +269,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
             [ 'echo "AppDynamics installation complete"']
         ]
         return commands
+        """
+        pass
 
 AppDynamicsInstaller.register(__name__)
