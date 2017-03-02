@@ -40,9 +40,9 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         self._tier_name = None               # AppDynamics Tier name
         self._node_name = None               # AppDynamics Node name
         try:
-            _log.info("Initializing")
+            print("Initializing")
             if ctx['PHP_VM'] == 'php':
-                _log.info("method: constructor")
+                print("method: constructor")
         except Exception:
             _log.warn("Error installing AppDynamics! "
                                 "AppDynamics will not be available.")
@@ -90,7 +90,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         Called when `should_configure` returns true.  Implement this
         method for your extension.
         """
-        _log.info("method: _configure")
+        print("method: _configure")
         pass
 
 
@@ -105,23 +105,23 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         The argument is the installer object that is passed into the
         `compile` method.
         """
-        _log.info("method: _compile")
-        _log.info("Installing AppDynamics")
-        install.package('APPDYNAMICS')
-        _log.info("Downloaded AppDynamics package")
+        print("method: _compile")
+        print("Installing AppDynamics")
+        install.package('AppDynamics')
+        print("Downloaded AppDynamics package")
 
 
     #3
     def _service_environment(self):
         """Return dict of environment variables x[var]=val"""
-        _log.info.info("method: _service_environment")
+        print("method: _service_environment")
         return {}
 
 
     #4 (Done)
     def _service_commands(self):
         """Return dict of commands to run x[name]=cmd"""
-        _log.info("method: _service_commands")
+        print("method: _service_commands")
         return {
             'httpd': (
             '$HOME/httpd/bin/apachectl',
@@ -138,7 +138,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
     #5
     def _preprocess_commands(self):
         """Return your list of preprocessing commands"""
-        _log.info("method: _preprocess_commands")
+        print("method: _preprocess_commands")
         return ()
 
 AppDynamicsInstaller.register(__name__)
