@@ -92,42 +92,81 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         """
         print("method: _configure")
         self._load_service_info()
-        self._load_service_credentials()
 
 
     def _load_service_info(self):
+        """
+        Populate the controller binding credentials and application details for AppDynamics service
+
+        """
         print("Loading AppDynamics service info.")
         services = self._ctx.get('VCAP_SERVICES', {})
         service_defs = services.get("appdynamics")
         if service_defs is None:
             print("AppDynamics service not present in VCAP_SERVICES")
-            # Search in ups
+            # Search in user-provided service
             print("Searching for appdynamics service in user-provided services")
             user_services = services.get("user-provided")
             for user_service in user_services:
                 if bool(re.search(self._FILTER, user_service.get("name"))):
-                    print("Using first detected AppDynamics service present in user-provided services")
+                    print("Using the first AppDynamics service present in user-provided services")
                     self._appdynamics_credentials = user_service.get("credentials")
+                    self._load_service_credentials
+                    # load the app details from user-provided service
+                    try:
+                        print("Populating application details from user-provided service")
+                        self._app_name = self._appdynamics_credentials.get("application-name")
+                        self._tier_name = self._appdynamics_credentials.get("tier-name")
+                        self._node_name = self._appdynamics_credentials.get("node-name")
+                    except Exception:
+                        print("Error populating app, tier and node names from AppDynamics user-provided service")
                     break
         elif len(service_defs) > 1:
             print("Multiple AppDynamics services found in VCAP_SERVICES, using credentials from first one.")
             self._appdynamics_credentials = service_defs[0].get("credentials")
+            self._load_service_credentials
+            self._load_app_details()
         elif len(service_defs) == 1:
             print("AppDynamics service found in VCAP_SERVICES")
             self._appdynamics_credentials = service_defs[0].get("credentials")
+            self._load_service_credentials
+            self._load_app_details()
 
 
 
     def _load_service_credentials(self):
-        if (self._appdynamics_credentials != None):
+        """
+        Configure the AppDynamics Controller Binding credentials
+        Called when Appdynamics Service is detected
+
+        """
+        if (self._appdynamics_credentials is not None):
             print("Populating AppDynamics controller binding credentials")
-            self._host_name = self._appdynamics_credentials.get("host-name")
-            self._port = self._appdynamics_credentials.get("port")
-            self._account_name = self._appdynamics_credentials.get("account-name")
-            self._account_access_key = self._appdynamics_credentials.get("account-accesss-key")
-            self._ssl_enabled = self._appdynamics_credentials.get("ssl-enabled")
+            try:
+                self._host_name = self._appdynamics_credentials.get("host-name")
+                self._port = self._appdynamics_credentials.get("port")
+                self._account_name = self._appdynamics_credentials.get("account-name")
+                self._account_access_key = self._appdynamics_credentials.get("account-accesss-key")
+                self._ssl_enabled = self._appdynamics_credentials.get("ssl-enabled")
+            except Exception:
+                print("Error populating AppDynamics controller binding credentials")
         else:
             print("AppDynamics credentials empty")
+
+    def _load_app_details(self):
+        """
+        Configure the AppDynamics application details
+        Called when AppDynamics Service is detected
+
+        """
+        print("Populating application details from AppDynamics service")
+        try:
+            self._app_name = self._application.get("space_name") + ":" + self._application.get("application_name")
+            self._tier_name = self._application.get("application_name")
+            self._node_name = self._application.get("application_name") + ":" + "node"  # ToDo Change the node name using lazy initialization
+        except Exception:
+            print("Error populating app, tier and node names from AppDynamics service")
+
 
     # 2
     # Done
@@ -144,13 +183,28 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         print("Installing AppDynamics")
         install.package('APPDYNAMICS')
         print("Downloaded AppDynamics package")
+        print("Change the execution rights")
+        #self._modify_dir_rights
 
+
+    def _modify_dir_rights(self):
+        self._appd_agent_path = os.path.join('@{HOME}', 'appdynamics', 'appdynamics-php-agent')
+        call(self._daemon_path)
 
     #3
     def _service_environment(self):
         """Return dict of environment variables x[var]=val"""
         print("method: _service_environment")
-        return {}
+        return {
+            'APPD_CONF_CONTROLLER_HOST': self._host_name,
+            'APPD_CONF_CONTROLLER_PORT': self._port,
+            'APPD_CONF_ACCOUNT_NAME': self._account_name,
+            'APPD_CONF_ACCESS_KEY': self._account_access_key,
+            'APPD_CONF_SSL_ENABLED': self._ssl_enabled,
+            'APPD_CONF_APP': self._app_name,
+            'APPD_CONF_TIER': self._tier_name,
+            'APPD_CONF_NODE': self._node_name
+        }
 
 
     #4 (Done)
