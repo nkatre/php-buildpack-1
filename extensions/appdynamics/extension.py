@@ -29,6 +29,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
     def __init__(self, ctx):
         PHPExtensionHelper.__init__(self, ctx)
         self._FILTER = "app[-]?dynamics"                 # make static final
+        self._detected = None                # AppDynamics Service is detected
         self._appdynamics_credentials = None # JSON which mentions all appdynamics credentials
         self._account_access_key = None      # AppDynamics Controller Account Access Key
         self._account_name = None            # AppDynamics Controller Account Name
@@ -43,6 +44,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
             print("Initializing")
             if ctx['PHP_VM'] == 'php':
                 print("method: constructor")
+
         except Exception:
             _log.warn("Error installing AppDynamics! "
                                 "AppDynamics will not be available.")
@@ -75,13 +77,15 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         It should return true if the payload of this extension should
         be installed (i.e. the `install` method is called).
         """
-        print("method: _should_compile")
-        VCAP_SERVICES_STRING = str(self._services)
-        if bool(re.search(self._FILTER, VCAP_SERVICES_STRING)):
-            print("AppDynamics service detected")
-            return True
+        if self._detected is None:
+            VCAP_SERVICES_STRING = str(self._services)
+            if bool(re.search(self._FILTER, VCAP_SERVICES_STRING)):
+                print("AppDynamics service detected")
+                return True
+            else:
+                return False
         else:
-            return False
+            return self._detected
 
     # WIP
     def _configure(self):
