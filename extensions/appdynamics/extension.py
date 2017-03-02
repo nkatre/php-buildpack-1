@@ -205,7 +205,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         """
         print("Running AppDynamics service commands")
         return {
-            'appd-java-proxy': (
+            '$PATH': (
             'home/vcap/app/appdynamics/appdynamics-php-agent/proxy/runProxy '
             '-d home/vcap/app/appdynamics/appdynamics-php-agent/proxy '
             '-r home/vcap/app/appdynamics/appdynamics-php-agent '
