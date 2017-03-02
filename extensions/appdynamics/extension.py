@@ -25,11 +25,10 @@ import re
 _log = logging.getLogger('appdynamics')
 
 class AppDynamicsInstaller(PHPExtensionHelper):
-
+    _detected = None                         # AppDynamics Service is detected
     def __init__(self, ctx):
         PHPExtensionHelper.__init__(self, ctx)
-        self._FILTER = "app[-]?dynamics"                 # make static final
-        self._detected = None                # AppDynamics Service is detected
+        self._FILTER = "app[-]?dynamics"
         self._appdynamics_credentials = None # JSON which mentions all appdynamics credentials
         self._account_access_key = None      # AppDynamics Controller Account Access Key
         self._account_name = None            # AppDynamics Controller Account Name
@@ -77,7 +76,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         It should return true if the payload of this extension should
         be installed (i.e. the `install` method is called).
         """
-        if self._detected is None:
+        if AppDynamicsInstaller._detected is None:
             VCAP_SERVICES_STRING = str(self._services)
             if bool(re.search(self._FILTER, VCAP_SERVICES_STRING)):
                 print("AppDynamics service detected")
