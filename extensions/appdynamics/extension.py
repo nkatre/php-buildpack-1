@@ -236,7 +236,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
             [ 'export', ' APPD_CONF_SSL_ENABLED=`echo $VCAP_SERVICES | sed -e \'s/.*ssl-enabled.:.//g;s/\".*.*//g\'`'],
             [ 'if [ $sslenabled == \"true\" ] ; then export sslflag=-s ; fi; '],
             [ 'echo sslflag set to $sslflag' ],
-            [ 'home/vcap/app/appdynamics/appdynamics-php-agent/install.sh '
+            [ '/home/vcap/app/appdynamics/appdynamics-php-agent/install.sh '
               '$sslflag '
               '-a "$APPDYNAMICS_ACCOUNT@$APPDYNAMICS_ACCESS_KEY"'
               '-e "$PHP_EXT_DIR" '
