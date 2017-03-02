@@ -22,10 +22,9 @@ from extension_helpers import PHPExtensionHelper
 from subprocess import call
 import re
 
-
+_log = logging.getLogger('appdynamics')
 
 class AppDynamicsInstaller(PHPExtensionHelper):
-    _log = logging.getLogger('appdynamics')
     def __init__(self, ctx):
         PHPExtensionHelper.__init__(self, ctx)
         self._FILTER = "app[-]?dynamics"                 # make static final
