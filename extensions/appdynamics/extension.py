@@ -183,14 +183,13 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         print("Installing AppDynamics")
         install.package('APPDYNAMICS')
         print("Downloaded AppDynamics package")
-        print("Run the install script")
+        print("Calling install script")
         self._modify_dir_rights
 
 
     def _modify_dir_rights(self):
-        os.system("$APPDYNAMICS_ACCOUNT=self._account_name")
-        os.system("PHP_VERSION=$(/home/vcap/app/php/bin/php-config --version | cut -d '.' -f 1,2)")
-        os.system("PHP_EXT_DIR=$(/home/vcap/app/php/bin/php-config --extension-dir | sed 's|/tmp/staged|/home/vcap|')")
+        os.system("export PHP_VERSION=$(/home/vcap/app/php/bin/php-config --version | cut -d '.' -f 1,2)")
+        os.system("export PHP_EXT_DIR=$(/home/vcap/app/php/bin/php-config --extension-dir | sed 's|/tmp/staged|/home/vcap|')")
         os.system("cd /home/vcap/app/appdynamics-php-agent")
         os.system("chmod -R 755 /home/vcap")
         os.system("chmod -R 777 /home/vcap/app/appdynamics/appdynamics-php-agent/logs")
