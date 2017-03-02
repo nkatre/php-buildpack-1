@@ -143,10 +143,12 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         Called when Appdynamics Service is detected
 
         """
+        print("Credentials: " + AppDynamicsInstaller._appdynamics_credentials)
         if (AppDynamicsInstaller._appdynamics_credentials is not None):
             print("Populating AppDynamics controller binding credentials")
             try:
                 AppDynamicsInstaller._host_name = AppDynamicsInstaller._appdynamics_credentials.get("host-name")
+                print("Controller Host Name: " + AppDynamicsInstaller._host_name)
                 AppDynamicsInstaller._port = AppDynamicsInstaller._appdynamics_credentials.get("port")
                 AppDynamicsInstaller._account_name = AppDynamicsInstaller._appdynamics_credentials.get("account-name")
                 AppDynamicsInstaller._account_access_key = AppDynamicsInstaller._appdynamics_credentials.get("account-accesss-key")
