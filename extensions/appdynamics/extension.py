@@ -76,12 +76,13 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         It should return true if the payload of this extension should
         be installed (i.e. the `install` method is called).
         """
-        self._log.info("method: _should_compile")
-        VCAP_SERVICES_STRING = str(self._services)
-        if bool(re.search(self.FILTER, VCAP_SERVICES_STRING)):
-            self._log.info("AppDynamics service detected")
-            return True
-        return False
+        #self._log.info("method: _should_compile")
+        #VCAP_SERVICES_STRING = str(self._services)
+        #if bool(re.search(self.FILTER, VCAP_SERVICES_STRING)):
+        #    self._log.info("AppDynamics service detected")
+        #    return True
+        #return False
+        return True
 
     # WIP
     def _configure(self):
@@ -140,3 +141,5 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         """Return your list of preprocessing commands"""
         self._log("method: _preprocess_commands")
         return ()
+
+AppDynamicsInstaller.register(__name__)
