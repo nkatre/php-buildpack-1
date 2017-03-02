@@ -120,7 +120,6 @@ class AppDynamicsInstaller(PHPExtensionHelper):
                         self._app_name = self._appdynamics_credentials.get("application-name")
                         self._tier_name = self._appdynamics_credentials.get("tier-name")
                         self._node_name = self._appdynamics_credentials.get("node-name")
-                        os.system("echo HELLO")
                     except Exception:
                         print("Error populating app, tier and node names from AppDynamics user-provided service")
                     break
@@ -211,6 +210,21 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         """Return dict of commands to run x[name]=cmd"""
         print("method: _service_commands")
         return {
+            'appdynamics': (
+            '/home/vcap/app/appdynamics/appdynamics-php-agent/install.sh '
+            '$sslflag '
+            '-a "$APPDYNAMICS_ACCOUNT@$APPDYNAMICS_ACCESS_KEY"'
+            '-e "$PHP_EXT_DIR" '
+            '-p "/home/vcap/app/php/bin"'
+            '-i ./app/appdynamics/phpini '
+            '-v "$PHP_VERSION"'
+            '--ignore-permissions'
+            '"$APPDYNAMICS_HOST"'
+            '"$APPDYNAMICS_PORT"'
+            '"$APP_NAME"'
+            '"$APPDYNAMICS_TIER"'
+            '"node-$CF_INSTANCE_INDEX"'
+            ),
             'httpd': (
             '$HOME/httpd/bin/apachectl',
             '-f "$HOME/httpd/conf/httpd.conf"',
