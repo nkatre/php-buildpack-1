@@ -197,7 +197,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
     #4 (Done)
     def _service_commands(self):
         """Return dict of commands to run x[name]=cmd"""
-        print("Running service commands")
+        print("Running AppDynamics service commands")
         return {
             'httpd': (
             '$HOME/httpd/bin/apachectl',
@@ -210,13 +210,15 @@ class AppDynamicsInstaller(PHPExtensionHelper):
     #5
     def _preprocess_commands(self):
         """Return your list of preprocessing commands"""
-        print("Running preprocess commands")
+        print("Running AppDynamics preprocess commands")
         commands = [
             [ 'echo "Installing AppDynamics package..."'],
             [ 'chmod -R 755 /home/vcap/app/appdynamics/appdynamics-php-agent'],
             [ 'chmod -R 777 /home/vcap/app/appdynamics/appdynamics-php-agent/logs'],
-            [ 'if [ $APPD_CONF_SSL_ENABLED == \"true\" ] ; then export sslflag=-s ; fi; '],
-            [ 'if [ $sslflag == \"-s\"] ; then echo sslflag set to $sslflag ; fi; '],
+            [ 'if [ $APPD_CONF_SSL_ENABLED == \"true\" ] ; then export sslflag=-s ; '
+              'echo sslflag set to $sslflag ; fi; '],
+            ['echo PHP_EXT_DIR $PHP_EXT_DIR'],
+            ['echo PHP_VERSION $PHP_VERSION'],
             [ '/home/vcap/app/appdynamics/appdynamics-php-agent/install.sh '
               '$sslflag '
               '-a "$APPD_CONF_ACCOUNT_NAME@$APPD_CONF_ACCESS_KEY" '
