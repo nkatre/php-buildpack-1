@@ -217,7 +217,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
             '-a "$APPD_CONF_ACCOUNT_NAME@$APPD_CONF_ACCESS_KEY" '
             '-e "$PHP_EXT_DIR" '
             '-p "/home/vcap/app/php/bin" '
-            '-i ./app/appdynamics/phpini '
+            '-i "/home/vcap/app/appdynamics/phpini" '
             '-v "$PHP_VERSION" '
             '--ignore-permissions '
             '"$APPD_CONF_CONTROLLER_HOST" '
@@ -256,17 +256,17 @@ class AppDynamicsInstaller(PHPExtensionHelper):
             [ 'echo sslflag set to $sslflag' ],
             [ '/home/vcap/app/appdynamics/appdynamics-php-agent/install.sh '
               '$sslflag '
-              '-a "$APPDYNAMICS_ACCOUNT@$APPDYNAMICS_ACCESS_KEY" '
+              '-a "$APPD_CONF_ACCOUNT_NAME@$APPD_CONF_ACCESS_KEY" '
               '-e "$PHP_EXT_DIR" '
               '-p "/home/vcap/app/php/bin" '
-              '-i ./app/appdynamics/phpini '
+              '-i "/home/vcap/app/appdynamics/phpini" '
               '-v "$PHP_VERSION" '
               '--ignore-permissions '
-              '"$APPDYNAMICS_HOST" '
-              '"$APPDYNAMICS_PORT" '
-              '"$APP_NAME" '
-              '"$APPDYNAMICS_TIER" '
-              '"node-$CF_INSTANCE_INDEX" '],
+              '"$APPD_CONF_CONTROLLER_HOST" '
+              '"$APPD_CONF_CONTROLLER_PORT" '
+              '"$APPD_CONF_APP" '
+              '"$APPD_CONF_TIER" '
+              '"$APPD_CONF_NODE-$CF_INSTANCE_INDEX" '],
             [ 'cat', '/home/vcap/app/appdynamics/phpini/appdynamics_agent.ini >> /home/vcap/app/php/etc/php.ini'],
             [ 'cat', '/home/vcap/app/appdynamics/phpini/appdynamics_agent.ini'],
             [ 'echo', '"done preprocess"'],
