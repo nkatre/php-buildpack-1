@@ -203,7 +203,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
 
         Returns dict of commands to run x[name]=cmd
         """
-        self._before_starting_service()
+        #self._before_starting_service()
         print("Running AppDynamics service commands")
         return {
             'httpd': (
@@ -212,7 +212,8 @@ class AppDynamicsInstaller(PHPExtensionHelper):
             '-k start',
             '-DFOREGROUND')
         }
-
+    
+    """
     def _before_starting_service(self):
         print("method: _before_starting_service")
         os.system("echo Installing AppDynamics package...")
@@ -234,6 +235,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         "$APPD_CONF_NODE:$CF_INSTANCE_INDEX"')
         os.system('cat /home/vcap/app/appdynamics/phpini/appdynamics_agent.ini >> /home/vcap/app/php/etc/php.ini')
         os.system('echo "AppDynamics installation complete"')
+    """
 
     #5
     def _preprocess_commands(self):
@@ -245,7 +247,6 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         Returns list of commands
         """
         print("Running AppDynamics preprocess commands")
-        """
         commands = [
             [ 'echo "Installing AppDynamics package..."'],
             [ 'chmod -R 755 /home/vcap'],
@@ -268,8 +269,8 @@ class AppDynamicsInstaller(PHPExtensionHelper):
             [ 'cat', '/home/vcap/app/appdynamics/phpini/appdynamics_agent.ini >> /home/vcap/app/php/etc/php.ini'],
             [ 'echo "AppDynamics installation complete"']
         ]
+        self._service_commands()
         return commands
-        """
-        pass
+        
 
 AppDynamicsInstaller.register(__name__)
