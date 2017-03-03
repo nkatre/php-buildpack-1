@@ -250,6 +250,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         print("Running AppDynamics preprocess commands")
         commands = [
             [ 'echo "Installing AppDynamics package..."'],
+            [ 'echo $HTTPD_SERVER_ADMIN'],
             [ 'chmod -R 755 /home/vcap'],
             [ 'chmod -R 777 /home/vcap/app/appdynamics/appdynamics-php-agent/logs'],
             [ 'if [ $APPD_CONF_SSL_ENABLED == \"true\" ] ; then export sslflag=-s ; '
@@ -268,6 +269,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
               '"$APPD_CONF_TIER" '
               '"$APPD_CONF_NODE:$CF_INSTANCE_INDEX" '],
             [ 'cat /home/vcap/app/appdynamics/phpini/appdynamics_agent.ini >> /home/vcap/app/php/etc/php.ini'],
+            [ 'export HOME="/home/vcap/app"'],
             ['/home/vcap/app/httpd/bin/apachectl '
             '-f "/home/vcap/app/httpd/conf/httpd.conf" '
             '-k restart '
