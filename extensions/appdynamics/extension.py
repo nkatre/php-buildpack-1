@@ -190,8 +190,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
             'APPD_CONF_SSL_ENABLED': AppDynamicsInstaller._ssl_enabled,
             'APPD_CONF_APP': AppDynamicsInstaller._app_name,
             'APPD_CONF_TIER': AppDynamicsInstaller._tier_name,
-            'APPD_CONF_NODE': AppDynamicsInstaller._node_name,
-            'HTTPD_SERVER_ADMIN': self._ctx['ADMIN_EMAIL']
+            'APPD_CONF_NODE': AppDynamicsInstaller._node_name
         }
         return env
 
@@ -205,6 +204,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         Returns dict of commands to run x[name]=cmd
         """
         #self._before_starting_service()
+        """
         print("Running AppDynamics service commands")
         return {
             'httpd': (
@@ -213,6 +213,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
             '-k start',
             '-DFOREGROUND')
         }
+        """
 
     """
     def _before_starting_service(self):
