@@ -190,7 +190,8 @@ class AppDynamicsInstaller(PHPExtensionHelper):
             'APPD_CONF_SSL_ENABLED': AppDynamicsInstaller._ssl_enabled,
             'APPD_CONF_APP': AppDynamicsInstaller._app_name,
             'APPD_CONF_TIER': AppDynamicsInstaller._tier_name,
-            'APPD_CONF_NODE': AppDynamicsInstaller._node_name
+            'APPD_CONF_NODE': AppDynamicsInstaller._node_name,
+            'HTTPD_SERVER_ADMIN': self._ctx['ADMIN_EMAIL']
         }
         return env
 
@@ -212,7 +213,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
             '-k start',
             '-DFOREGROUND')
         }
-    
+
     """
     def _before_starting_service(self):
         print("method: _before_starting_service")
@@ -266,11 +267,14 @@ class AppDynamicsInstaller(PHPExtensionHelper):
               '"$APPD_CONF_APP" '
               '"$APPD_CONF_TIER" '
               '"$APPD_CONF_NODE:$CF_INSTANCE_INDEX" '],
-            [ 'cat', '/home/vcap/app/appdynamics/phpini/appdynamics_agent.ini >> /home/vcap/app/php/etc/php.ini'],
-            [ 'echo "AppDynamics installation complete"']
+            [ 'cat /home/vcap/app/appdynamics/phpini/appdynamics_agent.ini >> /home/vcap/app/php/etc/php.ini'],
+            [ 'echo "AppDynamics installation complete"'],
+            ['/home/vcap/app/httpd/bin/apachectl '
+            '-f "$HOME/httpd/conf/httpd.conf" '
+            '-k restart '
+            '-DFOREGROUND']
         ]
-        self._service_commands()
         return commands
-        
+
 
 AppDynamicsInstaller.register(__name__)
