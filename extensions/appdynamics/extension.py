@@ -215,12 +215,6 @@ class AppDynamicsInstaller(PHPExtensionHelper):
             '-DFOREGROUND')
         }
         """
-        commands = {
-            'echo': (
-                'ls -lart /home/vcap/app/appdynamics/appdynamics-php-agent'
-            )
-        }
-        return commands
 
     """
     def _before_starting_service(self):
@@ -265,7 +259,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
             [ '/home/vcap/app/appdynamics/appdynamics-php-agent/install.sh '
               '$sslflag '
               '-a "$APPD_CONF_ACCOUNT_NAME@$APPD_CONF_ACCESS_KEY" '
-              '-e "$PHP_EXT_DIR" '
+              '-e "/home/vcap/app/php/lib/php/extensions/no-debug-non-zts-20121212" '
               '-p "/home/vcap/app/php/bin" '
               '-i "/home/vcap/app/appdynamics/phpini" '
               '-v "$PHP_VERSION" '
