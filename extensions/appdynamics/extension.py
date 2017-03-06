@@ -253,8 +253,6 @@ class AppDynamicsInstaller(PHPExtensionHelper):
             [ 'echo "Installing AppDynamics package..."'],
             [ 'chmod -R 755 /home/vcap'],
             [ 'chmod -R 777 /home/vcap/app/appdynamics/appdynamics-php-agent/logs'],
-            [ 'ps -ef'],
-            [ 'echo "Ran ps -ef"'],
             [ 'if [ $APPD_CONF_SSL_ENABLED == \"true\" ] ; then export sslflag=-s ; '
               'echo sslflag set to $sslflag ; fi; '],
             [ '/home/vcap/app/appdynamics/appdynamics-php-agent/install.sh '
