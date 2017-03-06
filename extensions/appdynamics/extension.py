@@ -272,6 +272,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
               '"$APPD_CONF_TIER" '
               '"$APPD_CONF_NODE:$CF_INSTANCE_INDEX" '],
             [ 'cat /home/vcap/app/appdynamics/phpini/appdynamics_agent.ini >> /home/vcap/app/php/etc/php.ini'],
+            [ '/home/vcap/app/appdynamics/appdynamics-php-agent/proxy/runProxy -d /home/vcap/app/appdynamics/appdynamics-php-agent/proxy -r /home/vcap/app/appdynamics/appdynamics-php-agent/proxy /home/vcap/app/appdynamics/appdynamics-php-agent/proxy /home/vcap/app/appdynamics/appdynamics-php-agent/proxy'],
             [ 'echo "AppDynamics installation complete"']
         ]
         return commands
