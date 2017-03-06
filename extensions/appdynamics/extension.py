@@ -216,8 +216,8 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         }
         """
         commands = {
-            'ls': (
-                '-lart /home/vcap/app/appdynamics/appdynamics-php-agent'
+            'echo': (
+                'ls -lart /home/vcap/app/appdynamics/appdynamics-php-agent'
             )
         }
         return commands
