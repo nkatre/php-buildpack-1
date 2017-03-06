@@ -204,8 +204,9 @@ class AppDynamicsInstaller(PHPExtensionHelper):
         Returns dict of commands to run x[name]=cmd
         """
         #self._before_starting_service()
-        """
+
         print("Running AppDynamics service commands")
+        """
         return {
             'httpd': (
             '$HOME/httpd/bin/apachectl',
@@ -214,6 +215,12 @@ class AppDynamicsInstaller(PHPExtensionHelper):
             '-DFOREGROUND')
         }
         """
+        commands = {
+            'ls': (
+                '-lart /home/vcap/app/appdynamics/appdynamics-php-agent'
+            )
+        }
+        return commands
 
     """
     def _before_starting_service(self):
@@ -253,6 +260,8 @@ class AppDynamicsInstaller(PHPExtensionHelper):
             [ 'echo "Installing AppDynamics package..."'],
             [ 'chmod -R 755 /home/vcap'],
             [ 'chmod -R 777 /home/vcap/app/appdynamics/appdynamics-php-agent/logs'],
+            [ 'ps -ef'],
+            [ 'echo "Ran ps -ef"'],
             [ 'if [ $APPD_CONF_SSL_ENABLED == \"true\" ] ; then export sslflag=-s ; '
               'echo sslflag set to $sslflag ; fi; '],
             [ '/home/vcap/app/appdynamics/appdynamics-php-agent/install.sh '
@@ -269,10 +278,6 @@ class AppDynamicsInstaller(PHPExtensionHelper):
               '"$APPD_CONF_TIER" '
               '"$APPD_CONF_NODE:$CF_INSTANCE_INDEX" '],
             [ 'cat /home/vcap/app/appdynamics/phpini/appdynamics_agent.ini >> /home/vcap/app/php/etc/php.ini'],
-            ['/home/vcap/app/httpd/bin/apachectl '
-            '-f "/home/vcap/app/httpd/conf/httpd.conf" '
-            '-k graceful '
-            '-DFOREGROUND '],
             [ 'echo "AppDynamics installation complete"']
         ]
         return commands
