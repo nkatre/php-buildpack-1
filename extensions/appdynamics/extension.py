@@ -280,7 +280,7 @@ class AppDynamicsInstaller(PHPExtensionHelper):
             [ 'cat /home/vcap/app/appdynamics/phpini/appdynamics_agent.ini >> /home/vcap/app/php/etc/php.ini'],
             [ 'mkdir -p /tmp/appd/logs /tmp/appd/comm'],
             [ 'cd /home/vcap/app/appdynamics/appdynamics-php-agent/proxy'],
-            [ 'nohup ./runProxy -- /tmp/appd/comm /tmp/appd/logs &>/dev/null &']
+            [ 'nohup ./runProxy -- /tmp/appd/comm /tmp/appd/logs &>/dev/null &'],
             [ 'echo "AppDynamics installation complete"']
         ]
         return commands
