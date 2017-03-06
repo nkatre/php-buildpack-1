@@ -215,12 +215,6 @@ class AppDynamicsInstaller(PHPExtensionHelper):
             '-DFOREGROUND')
         }
         """
-        commands = {
-            'echo': (
-                'ls -lart /home/vcap/app/appdynamics/appdynamics-php-agent'
-            )
-        }
-        return commands
 
     """
     def _before_starting_service(self):
